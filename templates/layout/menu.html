@@ -1,0 +1,8 @@
+<ul>
+    <li {% if request.path == url_for("index") %}class="current"{% endif %}>
+        <a href="{{ url_for('index') }}">Main page</a>
+    </li>
+    <li {% if request.path == url_for("contacts") %}class="current"{% endif %}>
+        <a href="{{ url_for('contacts') }}">Contacts</a>
+    </li>
+</ul>

@@ -1,0 +1,16 @@
+html {height:100%;}
+body {background-color: #100712; margin:0; padding:0; text-align:center; color:#DDD;}
+a {color:#FFF;}
+
+#menuID {margin:0 0 10px 0; padding:0; background-color:#AAA; border-bottom:#989 inset 3px;
+    border-bottom-left-radius:7px; border-bottom-right-radius:7px;}
+#menuID>ul {list-style:none; margin:0; padding:0;}
+#menuID>ul>li {display:inline-block; margin:5px 15px;}
+#menuID a {text-decoration:none; color:#333; font-size:18px; text-shadow:#DDD 1px 1px 4px;}
+#menuID a:hover, #menuID a.hover {text-decoration:underline; color:#000; text-shadow:#FFF 1px 1px 2px;}
+#menuID>ul>li.current>a {color:#777;}
+
+#contentID {margin:15px; text-align:left;}
+#gameID {background-color:#FFF; position:relative; z-index:1;}
+
+#footerID {position:fixed; bottom:0; margin:10px 5px; width:100%; z-index:0;}
