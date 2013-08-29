@@ -1,5 +1,5 @@
 html {height:100%;}
-body {background-color: #100712; margin:0; padding:0; text-align:center; color:#DDD;}
+body {background-color: #100712; margin:0; padding:0; text-align:center; color:#DDD; min-width:320px; min-height:320px;}
 a {color:#FFF;}
 
 #menuID {margin:0 0 10px 0; padding:0; background-color:#AAA; border-bottom:#989 inset 3px;
