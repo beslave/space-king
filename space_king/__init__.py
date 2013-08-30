@@ -3,7 +3,5 @@ from flask import Flask
 
 
 app = Flask("__main__")
-app.config.from_object("space_king.site_settings")
-
-
+app.config.from_object("space_king.settings")
 from . import views

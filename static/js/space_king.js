@@ -1,3 +1,6 @@
+var socket;
+
+
 $(document).ready(function(e){
     $('li, a').hover(function(e){
         $(this).addClass('hover');
@@ -5,6 +8,7 @@ $(document).ready(function(e){
         $(this).removeClass('hover');
     });
     window.onresize = onResize;
+    initSocket();
     onResize();
 });
 
@@ -30,4 +34,29 @@ function onResize(e){
         game.width = game_width;
         game.style.width = game_width;
     }
+}
+
+function initSocket(){
+    socket = new WebSocket("ws://localhost:8080/echo");
+    socket.onopen = function(){
+        log("Соединение установлено.");
+        socket.send("Hello!");
+    };
+    socket.onclose = function(event){
+        if(event.wasClean){
+            log('Соединение закрыто чисто');
+        } else {
+            log('Обрыв соединения'); // например, "убит" процесс сервера
+        }
+        log('Код: ' + event.code + ' причина: ' + event.reason);
+    };
+    socket.onmessage = function(event){
+        log("Получены данные " + event.data);
+    };
+    socket.onerror = function(error){
+        log("Ошибка " + error.message);
+    };
+}
+function log(msg){
+    console.log(msg);
 }

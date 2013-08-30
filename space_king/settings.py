@@ -1,0 +1,4 @@
+# coding: utf-8
+DEBUG = True
+SITE_PORT = 7001
+SOCKETSERVER_PORTS = [7002]

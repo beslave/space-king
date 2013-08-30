@@ -1,6 +1,9 @@
 <!doctype html>
 <html>
-    <head>{% include "layout/head.html" %}</head>
+    <head>
+        <title>{% block title %}Some page{% endblock %} - Space King</title>
+        {% include "layout/head.html" %}
+    </head>
     <body>
         <div id="menuID">{% include "layout/menu.html" %}</div>
         <div id="advID">Some advertisement</div>
