@@ -10,7 +10,7 @@ a {color:#FFF;}
 #menuID a:hover, #menuID a.hover {text-decoration:underline; color:#000; text-shadow:#FFF 1px 1px 2px;}
 #menuID>ul>li.current>a {color:#777;}
 
-#contentID {margin:15px; text-align:left;}
-#gameID {background-color:#FFF; position:relative; z-index:1;}
+#contentID {margin:15px; text-align:center;}
+#gameID {background-color:rgba(0,0,0,0); position:relative; z-index:1;}
 
 #footerID {position:fixed; bottom:0; margin:10px 5px; width:100%; z-index:0;}

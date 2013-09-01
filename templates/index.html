@@ -3,5 +3,6 @@
 {% block title %}Main page{% endblock %}
 
 {% block content %}
+    <script type="text/javascript">var SOCKET_URL = "{{ socket_url }}";</script>
     {% include "game_canvas.html" %}
 {% endblock %}
