@@ -259,6 +259,7 @@ class WebSocketTransport(object):
     implements(interfaces.ITransport)
 
     _handler = None
+    __USERS__ = []
 
     def __init__(self, request):
         self._request = request

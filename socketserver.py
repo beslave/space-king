@@ -9,7 +9,7 @@ if __name__ == "__main__":
     root = File('.')
 
     site = WebSocketSite(root)
-    site.addHandler('/game', socketserver.GameHandler)
+    site.addHandler('/game', socketserver.Player)
 
     for port in settings.SOCKETSERVER_PORTS:
         reactor.listenTCP(port, site, interface='0.0.0.0')

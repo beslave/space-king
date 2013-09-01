@@ -11,4 +11,4 @@ def index():
         addr=request.host.split(':')[0],
         port=random.choice(settings.SOCKETSERVER_PORTS)
     )
-    return render_template("index.html", socket_url = socket_url)
+    return render_template("index.html", socket_url=socket_url, settings=settings)
