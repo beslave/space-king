@@ -266,27 +266,27 @@ var Ship = function(kwargs){
     };
     obj.forward = function(is_on){
         var prev = this.is_forward;
-        this.is_forward = is_on;
         if(is_on && !prev) socket.send('forward on');
         else if(!is_on && prev) socket.send('forward off');
+        this.is_forward = is_on;
     }
     obj.backward = function(is_on){
         var prev = this.is_backward;
-        this.is_backward = is_on;
         if(is_on && !prev) socket.send('backward on');
         else if(!is_on && prev) socket.send('backward off');
+        this.is_backward = is_on;
     }
     obj.right = function(is_on){
         var prev = this.is_right;
-        this.is_right = is_on;
         if(is_on && !prev) socket.send('right on');
         else if(!is_on && prev) socket.send('right off');
+        this.is_right = is_on;
     }
     obj.left = function(is_on){
         var prev = this.is_left;
-        this.is_left = is_on;
         if(is_on && !prev) socket.send('left on');
         else if(!is_on && prev) socket.send('left off');
+        this.is_left = is_on;
     }
     return obj;
 }
@@ -351,11 +351,13 @@ function draw(){
         }
         canvas.width = canvas.width;
         context.translate(canvas.width / 2, canvas.height / 2);
+        context.rotate(OBJECTS[0].rotation * Math.PI / 180);
         context.drawImage(
             bcanvas,
             dx, dy, canvas.width, canvas.height,
             - canvas.width / 2, - canvas.height / 2, canvas.width, canvas.height
         );
+        context.rotate(- OBJECTS[0].rotation * Math.PI / 180);
         context.drawImage(mapcanvas, 0, 0, map_size, map_size, canvas.width / 2 - map_size, canvas.height / 2 - map_size, map_size, map_size);
     }
     setTimeout(draw, 0);
