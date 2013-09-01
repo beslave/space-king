@@ -330,6 +330,7 @@ function draw(){
         mapcanvas.width = map_size;
         mapcanvas.height = map_size;
         mapcontext.translate(map_size/2, map_size/2);
+        mapcontext.rotate(- OBJECTS[0].angle * Math.PI / 180)
         mapcontext.fillStyle = "rgba(200,224,127,0.4)";
         mapcontext.strokeStyle = "rgba(255,0,0,0.4)";
         mapcontext.lineWidth = map_size * 0.02;
