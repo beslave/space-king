@@ -8,7 +8,7 @@ import random
 @app.route("/")
 def index():
     socket_url = "ws://{addr}:{port}/game".format(
-        addr=request.remote_addr,
+        addr=request.host.split(':')[0],
         port=random.choice(settings.SOCKETSERVER_PORTS)
     )
     return render_template("index.html", socket_url = socket_url)

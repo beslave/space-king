@@ -31,8 +31,12 @@ class GameHandler(WebSocketHandler):
         return super(GameHandler, self).__init__(*a, **k)
 
     def connectionMade(self):
+        print "Connection Made"
         self.transport.write(json.dumps(self.ship))
         self.transport.write(json.dumps([self.new_ship(0, -500, -180)]))
+
+    def connectionLost(self, reason):
+        print "Lost connection:", reason
 
     def frameReceived(self, frame):
         # self.transport.write(frame)

@@ -65,11 +65,13 @@ function onResize(e){
 function initSocket(){
     socket = new WebSocket(SOCKET_URL);
     socket.onopen = function(){
+        log("socket open");
     };
     socket.onclose = function(event){
         if(event.wasClean){
         } else {
             // try reconect
+            log("socket close");
             setTimeout(initSocket, 1000);
         }
     };
@@ -84,6 +86,7 @@ function initSocket(){
         }
     };
     socket.onerror = function(error){
+        log("socket error:", error);
     };
 }
 
