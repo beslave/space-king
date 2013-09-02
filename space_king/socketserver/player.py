@@ -1,10 +1,12 @@
 # coding: utf-8
 from libs.websocket import WebSocketHandler
+from logger import logging_on
 from .game import Game
 import json
 import random
 
 
+@logging_on
 class Player(WebSocketHandler):
 
     @classmethod

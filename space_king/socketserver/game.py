@@ -1,4 +1,5 @@
 # coding: utf-8
+from logger import logging_on
 from space_king import settings
 from twisted.internet import reactor
 
@@ -6,6 +7,7 @@ import json
 import math
 
 
+@logging_on
 class Game(object):
 
     def __init__(self, player1, player2):
@@ -30,39 +32,51 @@ class Game(object):
 
     def next_frame(self):
         for player in [self.player1, self.player2]:
-            # Change speed
-            if player.is_backward:
-                player.speed_x += player.acceleration_forward * math.cos((90 - player.angle) * math.pi / 180)
-                player.speed_y += player.acceleration_forward * math.sin((90 - player.angle) * math.pi / 180)
-            if player.is_forward:
-                player.speed_x -= player.acceleration_forward * math.cos((90 - player.angle) * math.pi / 180)
-                player.speed_y -= player.acceleration_forward * math.sin((90 - player.angle) * math.pi / 180)                
-            # Change angle
-            if player.is_forward or player.is_backward:
-                if player.is_left:
-                    player.angle += player.angle_speed
-                if player.is_right:
-                    player.angle -= player.angle_speed
-            # Move ship
-            player.x += player.speed_x
-            player.y += player.speed_y
-            # Fix position
-            if player.x > settings.SPACE_RADIUS - player.radius:
-                player.x = settings.SPACE_RADIUS - player.radius
-                player.speed_x = 0
-            if player.x < - settings.SPACE_RADIUS + player.radius:
-                player.x = - settings.SPACE_RADIUS + player.radius
-                player.speed_x = 0
-            if player.y > settings.SPACE_RADIUS - player.radius:
-                player.y = settings.SPACE_RADIUS - player.radius
-                player.speed_y = 0
-            if player.y < - settings.SPACE_RADIUS + player.radius:
-                player.y = - settings.SPACE_RADIUS + player.radius
-                player.speed_y = 0
-            player.speed_x = min(player.max_speed, player.speed_x)
-            player.speed_x = max(-player.max_speed, player.speed_x)
-            player.speed_y = min(player.max_speed, player.speed_y)
-            player.speed_y = max(-player.max_speed, player.speed_y)
+            self.change_speed(player)
+            self.change_angle(player)
+            self.move_ship(player)
+            self.fix_positions(player)
+            self.limit_speed(player)
+        self.check_shots()
+
+    def change_speed(self, player):
+        if player.is_backward:
+            player.speed_x += player.acceleration_forward * math.cos((90 - player.angle) * math.pi / 180)
+            player.speed_y += player.acceleration_forward * math.sin((90 - player.angle) * math.pi / 180)
+        if player.is_forward:
+            player.speed_x -= player.acceleration_forward * math.cos((90 - player.angle) * math.pi / 180)
+            player.speed_y -= player.acceleration_forward * math.sin((90 - player.angle) * math.pi / 180)
+
+    def change_angle(self, player):
+        if player.is_forward or player.is_backward:
+            if player.is_left:
+                player.angle += player.angle_speed
+            if player.is_right:
+                player.angle -= player.angle_speed
+
+    def move_ship(self, player):
+        player.x += player.speed_x
+        player.y += player.speed_y
+
+    def fix_positions(self, player):
+        if player.x > settings.SPACE_RADIUS:
+            player.x = - settings.SPACE_RADIUS
+        if player.x < - settings.SPACE_RADIUS:
+            player.x = settings.SPACE_RADIUS
+        if player.y > settings.SPACE_RADIUS:
+            player.y = - settings.SPACE_RADIUS
+        if player.y < - settings.SPACE_RADIUS:
+            player.y = settings.SPACE_RADIUS
+
+    def limit_speed(self, player):
+        player.speed_x = min(player.max_speed, player.speed_x)
+        player.speed_x = max(-player.max_speed, player.speed_x)
+        player.speed_y = min(player.max_speed, player.speed_y)
+        player.speed_y = max(-player.max_speed, player.speed_y)
+
+    def check_shots(self):
+        pass
+
 
     @staticmethod
     def diff(dict1, dict2):
