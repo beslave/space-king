@@ -49,16 +49,16 @@ class Game(object):
             # Fix position
             if player.x > settings.SPACE_RADIUS - player.radius:
                 player.x = settings.SPACE_RADIUS - player.radius
-                player.speed_x = - player.speed_x
+                player.speed_x = 0
             if player.x < - settings.SPACE_RADIUS + player.radius:
                 player.x = - settings.SPACE_RADIUS + player.radius
-                player.speed_x = - player.speed_x
+                player.speed_x = 0
             if player.y > settings.SPACE_RADIUS - player.radius:
                 player.y = settings.SPACE_RADIUS - player.radius
-                player.speed_y = - player.speed_y
+                player.speed_y = 0
             if player.y < - settings.SPACE_RADIUS + player.radius:
                 player.y = - settings.SPACE_RADIUS + player.radius
-                player.speed_y = - player.speed_y
+                player.speed_y = 0
             player.speed_x = min(player.max_speed, player.speed_x)
             player.speed_x = max(-player.max_speed, player.speed_x)
             player.speed_y = min(player.max_speed, player.speed_y)

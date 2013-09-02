@@ -15,7 +15,7 @@ class Player(WebSocketHandler):
             y=y,
             angle=angle,
             rotation=-angle,
-            radius=96,
+            radius=64,
             color=random.choice(["#C95", "#777", "#669"]),
             light_color=random.choice(["#F00", "#0F0", "#00F", "#FF0", "#F0F", "#0FF"]),
             turbine_color=random.choice(["#555", "#446", "#644", "#464"]),

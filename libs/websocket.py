@@ -425,8 +425,6 @@ class WebSocketFrameDecoder(object):
         @param data: data received over the WebSocket connection.
         @type data: C{str}
         """
-        if not data:
-            return
         self._data.extend(map(ord, data))
         if len(self._data) < 2:
             return
@@ -458,6 +456,8 @@ class WebSocketFrameDecoder(object):
         frame = "".join(map(chr, decoded))
         self._data = self._data[index_first_data + length:]
         self.handler.frameReceived(frame)
+        if self._data:
+            self.dataReceived("")
 
 
 __all__ = ["WebSocketHandler", "WebSocketSite"]

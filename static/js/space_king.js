@@ -330,7 +330,7 @@ function draw(){
         mapcanvas.width = map_size;
         mapcanvas.height = map_size;
         mapcontext.translate(map_size/2, map_size/2);
-        mapcontext.rotate(- OBJECTS[0].angle * Math.PI / 180)
+        mapcontext.rotate(- OBJECTS[0].rotation * Math.PI / 180)
         mapcontext.fillStyle = "rgba(200,224,127,0.4)";
         mapcontext.strokeStyle = "rgba(255,0,0,0.4)";
         mapcontext.lineWidth = map_size * 0.02;
@@ -339,12 +339,12 @@ function draw(){
         mapcontext.closePath();
         mapcontext.fill();
         mapcontext.stroke();
+        mapcontext.lineWidth = map_size * 0.03;
         for(var i = OBJECTS.length - 1; i >= 0; i--){
-            mapcontext.lineWidth = map_size * 0.03;
             if(i == 0){ mapcontext.fillStyle = "rgba(255,255,127,0.5)"; mapcontext.strokeStyle = "rgba(196,255,63,0.3)"; }
             else { mapcontext.fillStyle = "rgba(255,127,127,0.5)"; mapcontext.strokeStyle = "rgba(255,127,63,0.3)"; }
             mapcontext.beginPath();
-            mapcontext.arc(OBJECTS[i].x * map_size / bcanvas.width, OBJECTS[i].y * map_size / bcanvas.width,
+            mapcontext.arc(OBJECTS[i].x * map_size / bcanvas.width, OBJECTS[i].y * map_size / bcanvas.height,
                 map_size * OBJECTS[i].radius / SPACE_RADIUS * 0.5, Math.PI * 2, false);
             mapcontext.closePath();
             mapcontext.fill();
