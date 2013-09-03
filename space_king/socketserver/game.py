@@ -79,7 +79,22 @@ class Game(object):
         player.speed_y = max(-player.max_speed, player.speed_y)
 
     def check_shots(self):
-        pass
+        p1 = self.player1
+        p2 = self.player2
+        # shot
+        if ((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2)  ** 0.5 <= p1.radius + p2.radius:
+            phi_x = math.atan((p2.y - p1.y) / (p2.x - p1.x))
+            phi_y = phi_x - math.pi / 2
+            v1 = (p1.speed_x ** 2 + p1.speed_y ** 2) ** 0.5
+            v2 = (p2.speed_x ** 2 + p2.speed_y ** 2) ** 0.5
+            q1, q2 = p1.angle, p2.angle
+            m1, m2 = p1.m, p2.m
+            for suf in ['x', 'y']:
+                phi = vars()["phi_{}".format(suf)]
+                A = (v1 * math.cos(q1 - phi) * (m1 + m2) + 2 * m2 * v2 * math.cos(q2 - phi)) / (m1 + m2)
+                B = v1 * math.sin(q1 - phi)
+                setattr(p1, "speed_{}".format(suf), A * math.cos(phi) + B * math.cos(phi + math.pi / 2))
+                setattr(p2, "speed_{}".format(suf), A * math.sin(phi) + B * math.sin(phi + math.pi / 2))
 
 
     @staticmethod
