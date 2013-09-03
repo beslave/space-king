@@ -5,6 +5,7 @@ from twisted.internet import reactor
 
 import json
 import math
+import time
 
 
 @logging_on
@@ -16,10 +17,13 @@ class Game(object):
         self.state1 = {}
         self.state2 = {}
         self.is_play = True
+        self.t1 = time.time()
 
     def play(self):
         if self.is_play:
+            self.t2 = time.time()
             self.next_frame()
+            self.t1 = self.t2
             diff1 = self.diff(self.state1, self.player1.ship)
             diff2 = self.diff(self.state2, self.player2.ship)
             to_player1 = json.dumps([diff1, diff2])
@@ -41,22 +45,22 @@ class Game(object):
 
     def change_speed(self, player):
         if player.is_backward:
-            player.speed_x += player.acceleration_forward * math.cos((90 - player.angle) * math.pi / 180)
-            player.speed_y += player.acceleration_forward * math.sin((90 - player.angle) * math.pi / 180)
+            player.speed_x -= player.acceleration_forward * math.cos(player.angle) * (self.t2 - self.t1)
+            player.speed_y += player.acceleration_forward * math.sin(player.angle) * (self.t2 - self.t1)
         if player.is_forward:
-            player.speed_x -= player.acceleration_forward * math.cos((90 - player.angle) * math.pi / 180)
-            player.speed_y -= player.acceleration_forward * math.sin((90 - player.angle) * math.pi / 180)
+            player.speed_x += player.acceleration_forward * math.cos(player.angle) * (self.t2 - self.t1)
+            player.speed_y -= player.acceleration_forward * math.sin(player.angle) * (self.t2 - self.t1)
 
     def change_angle(self, player):
         if player.is_forward or player.is_backward:
             if player.is_left:
-                player.angle += player.angle_speed
+                player.angle += player.angle_speed * (self.t2 - self.t1)
             if player.is_right:
-                player.angle -= player.angle_speed
+                player.angle -= player.angle_speed * (self.t2 - self.t1)
 
     def move_ship(self, player):
-        player.x += player.speed_x
-        player.y += player.speed_y
+        player.x += player.speed_x * (self.t2 - self.t1)
+        player.y += player.speed_y * (self.t2 - self.t1)
 
     def fix_positions(self, player):
         if player.x > settings.SPACE_RADIUS:

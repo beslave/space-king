@@ -2,9 +2,10 @@
 from libs.websocket import WebSocketHandler
 from logger import logging_on
 from .game import Game
+
 import json
 import random
-
+import math
 
 @logging_on
 class Player(WebSocketHandler):
@@ -13,10 +14,11 @@ class Player(WebSocketHandler):
     def new_ship(cls, x=0, y=0, angle=0):
         return dict(
             type="ship",
+            m=0,
             x=x,
             y=y,
             angle=angle,
-            rotation=-angle,
+            rotation=math.pi / 2 - angle,
             radius=64,
             color=random.choice(["#C95", "#777", "#669"]),
             light_color=random.choice(["#F00", "#0F0", "#00F", "#FF0", "#F0F", "#0FF"]),
@@ -31,10 +33,11 @@ class Player(WebSocketHandler):
         self.enemy = None
         self.speed_x = 0
         self.speed_y = 0
-        self.angle_speed = 2
-        self.acceleration_forward = 0.15
-        self.acceleration_backward = 0.1
-        self.max_speed = 3
+        self.angle_speed = math.pi * 1.5
+        self.acceleration_forward = 500
+        self.acceleration_backward = 400
+        self.max_speed = 250
+        self.m = 1
         return super(Player, self).__init__(*a, **k)
 
     def __getattr__(self, attr):
@@ -55,7 +58,7 @@ class Player(WebSocketHandler):
             self.enemy.enemy = self
         else:
             self.transport.__USERS__.append(self)
-        self.ship = self.new_ship(0, 130 if self.enemy is None else -130, 0 if self.enemy is None else -180)
+        self.ship = self.new_ship(0, 130 if self.enemy is None else -130, math.pi / 2 if self.enemy is None else - math.pi / 2)
         self.transport.write(json.dumps(self.ship))
         if self.enemy:
             self.enemy.transport.write(json.dumps([self.ship]))

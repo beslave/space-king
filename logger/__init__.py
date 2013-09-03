@@ -11,7 +11,7 @@ __LOGS__ = OrderedDict()
 def logging_on(cls):
     if cls.__name__ not in __LOGS__:
         __LOGS__[cls.__name__] = OrderedDict()
-    clog = OrderedDict()   # Class log
+    clog = __LOGS__[cls.__name__]   # Class log
     for method_name in dir(cls):
         method = getattr(cls, method_name)
         if not hasattr(method, "__call__"):

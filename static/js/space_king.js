@@ -204,7 +204,7 @@ var Ship = function(kwargs){
         this.context.translate(this.radius * 2, this.radius * 2);
     };
     obj.rotate_ship = function(){
-        this.context.rotate(- this.angle * Math.PI / 180.0);
+        this.context.rotate(Math.PI / 2 - this.angle);
     };
     obj.draw_casing = function(){
         this.context.beginPath();
@@ -353,10 +353,7 @@ function draw(){
         var k = Math.max(bcanvas.width / fon.width, bcanvas.height / fon.height);
         var f_width = fon.width * k;
         var f_height = fon.height * k;
-        var rangle = OBJECTS[0].angle * Math.PI / 180;
         bcontext.translate(SPACE_RADIUS, SPACE_RADIUS);
-        // bcontext.translate(SPACE_RADIUS * (Math.cos(rangle) - Math.sin(rangle)), SPACE_RADIUS * (Math.sin(rangle) + Math.cos(rangle)));
-        // bcontext.translate(SPACE_RADIUS, SPACE_RADIUS);
         bcontext.drawImage(fon, 0, 0, fon.width, fon.height,
             - f_width / 2, - f_height / 2, f_width, f_height);
         bcontext.strokeStyle = "#F00";
@@ -369,16 +366,12 @@ function draw(){
         for(var i = 1; i < OBJECTS.length; i++){
             OBJECTS[i].draw(bcontext);
         }
-        // OBJECTS[0].draw();
-        // Draw buffer image to main canvas
-        // bcontext.rotate(OBJECTS[0].angle * Math.PI / 180);
-        // Clear context
         OBJECTS[0].draw(bcontext);
         // Draw map
         mapcanvas.width = map_size;
         mapcanvas.height = map_size;
         mapcontext.translate(map_size/2, map_size/2);
-        mapcontext.rotate(- OBJECTS[0].rotation * Math.PI / 180)
+        mapcontext.rotate(- OBJECTS[0].rotation)
         mapcontext.fillStyle = "rgba(200,224,127,0.4)";
         mapcontext.strokeStyle = "rgba(255,0,0,0.4)";
         mapcontext.lineWidth = map_size * 0.02;
@@ -400,13 +393,13 @@ function draw(){
         }
         canvas.width = canvas.width;
         context.translate(canvas.width / 2, canvas.height / 2);
-        context.rotate(OBJECTS[0].rotation * Math.PI / 180);
+        context.rotate(OBJECTS[0].rotation);
         context.drawImage(
             bcanvas,
             dx, dy, canvas.width, canvas.height,
             - canvas.width / 2, - canvas.height / 2, canvas.width, canvas.height
         );
-        context.rotate(- OBJECTS[0].rotation * Math.PI / 180);
+        context.rotate(- OBJECTS[0]);
         context.drawImage(mapcanvas, 0, 0, map_size, map_size, canvas.width / 2 - map_size, canvas.height / 2 - map_size, map_size, map_size);
     }
     setTimeout(draw, 0);
