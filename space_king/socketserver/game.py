@@ -8,6 +8,14 @@ import math
 import time
 
 
+def div(a, b):
+    if a == 0:
+        return 0
+    if b == 0:
+        return math.copysign(float("inf"), a)
+    return a / b
+
+
 @logging_on
 class Game(object):
 
@@ -28,8 +36,8 @@ class Game(object):
             diff2 = self.diff(self.state2, self.player2.ship)
             to_player1 = json.dumps([diff1, diff2])
             to_player2 = json.dumps([diff2, diff1])
-            self.player1.transport.write(to_player1);
-            self.player2.transport.write(to_player2);
+            self.player1.transport.write(to_player1)
+            self.player2.transport.write(to_player2)
             self.state1.update(self.player1.ship)
             self.state2.update(self.player2.ship)
             reactor.callLater(0.01, self.play)
@@ -80,29 +88,35 @@ class Game(object):
 
     def check_shots(self):
         p1, p2 = self.player1, self.player2
-        distance = ((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2)  ** 0.5
+        distance = ((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2) ** 0.5
         # if shot
         if distance <= p1.radius + p2.radius:
-            (p1.speed_x, p2.speed_x), (p1.speed_y, p2.speed_y) = self.get_velocities2d(
+            p1.speed_x, p1.speed_y, p2.speed_x, p2.speed_y = self.get_velocities2d(
                 p1.m,
                 p2.m,
                 p1.speed,
                 p2.speed,
-                math.atan(p1.speed_y / p1.speed_x),
-                math.atan(p1.speed_y / p1.speed_x),
-                math.atan((p2.y - p1.y) / (p2.x - p1.x))
+                math.atan(div(p1.speed_y, p1.speed_x)),
+                math.atan(div(p2.speed_y, p2.speed_x)),
+                math.atan(div(p2.y - p1.y, p2.x - p1.x))
             )
 
     @staticmethod
     def get_velocities2d(m1, m2, v1, v2, q1, q2, phi):
-        v1x = v1 * math.cos(q1 - phi)
-        v1y = v1 * math.sin(q1 - phi)
-        v2x = v2 * math.cos(q2 - phi)
-        v2y = v2 * math.sin(q2 - phi)
+        _v1x, _v1y = v1 * math.cos(q1), v1 * math.sin(q1)
+        _v2x, _v2y = v2 * math.cos(q2), v2 * math.sin(q2)
+
+        v1x, v1y = Game.rotate(_v1x, _v1y, phi)
+        v2x, v2y = Game.rotate(_v2x, _v2y, phi)
+
         velocities = []
         for v1_1d, v2_1d in [(v1x, v2x), (v1y, v2y)]:
             velocities.append(Game.get_velocities(m1, m2, v1_1d, v2_1d))
-        return velocities
+
+        u1x, u1y = Game.rotate(velocities[0][0], velocities[1][0], -phi)
+        u2x, u2y = Game.rotate(velocities[0][1], velocities[1][1], -phi)
+
+        return u1x, u1y, u2x, u2y
 
     @staticmethod
     def get_velocities(m1, m2, v1, v2):
@@ -114,6 +128,12 @@ class Game(object):
         getu1 = lambda x: (m1 * v1 + m2 * v2 - m2 * x) / m1
         u11, u12 = getu1(u21), getu1(u22)
         return (u11, u21) if (u11, u21) != (v1, v2) else (u12, u22)
+
+    @staticmethod
+    def rotate(x, y, phi):
+        _x = x * math.cos(phi) - y * math.sin(phi)
+        _y = x * math.sin(phi) + y * math.cos(phi)
+        return _x, _y
 
     @staticmethod
     def diff(dict1, dict2):

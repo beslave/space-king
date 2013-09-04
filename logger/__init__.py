@@ -24,6 +24,8 @@ def logging_on(cls):
 
 
 def print_logs():
+    print "*" * 100
+    print "Logs:"
     for name, log in __LOGS__.iteritems():
         print "{:=^100}".format(name.upper())
         for func, params in log.iteritems():

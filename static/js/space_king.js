@@ -399,7 +399,7 @@ function draw(){
             dx, dy, canvas.width, canvas.height,
             - canvas.width / 2, - canvas.height / 2, canvas.width, canvas.height
         );
-        context.rotate(- OBJECTS[0]);
+        context.rotate(- OBJECTS[0].rotation);
         context.drawImage(mapcanvas, 0, 0, map_size, map_size, canvas.width / 2 - map_size, canvas.height / 2 - map_size, map_size, map_size);
     }
     setTimeout(draw, 0);
