@@ -79,23 +79,41 @@ class Game(object):
         player.speed_y = max(-player.max_speed, player.speed_y)
 
     def check_shots(self):
-        p1 = self.player1
-        p2 = self.player2
-        # shot
-        if ((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2)  ** 0.5 <= p1.radius + p2.radius:
-            phi_x = math.atan((p2.y - p1.y) / (p2.x - p1.x))
-            phi_y = phi_x - math.pi / 2
-            v1 = (p1.speed_x ** 2 + p1.speed_y ** 2) ** 0.5
-            v2 = (p2.speed_x ** 2 + p2.speed_y ** 2) ** 0.5
-            q1, q2 = p1.angle, p2.angle
-            m1, m2 = p1.m, p2.m
-            for suf in ['x', 'y']:
-                phi = vars()["phi_{}".format(suf)]
-                A = (v1 * math.cos(q1 - phi) * (m1 + m2) + 2 * m2 * v2 * math.cos(q2 - phi)) / (m1 + m2)
-                B = v1 * math.sin(q1 - phi)
-                setattr(p1, "speed_{}".format(suf), A * math.cos(phi) + B * math.cos(phi + math.pi / 2))
-                setattr(p2, "speed_{}".format(suf), A * math.sin(phi) + B * math.sin(phi + math.pi / 2))
+        p1, p2 = self.player1, self.player2
+        distance = ((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2)  ** 0.5
+        # if shot
+        if distance <= p1.radius + p2.radius:
+            (p1.speed_x, p2.speed_x), (p1.speed_y, p2.speed_y) = self.get_velocities2d(
+                p1.m,
+                p2.m,
+                p1.speed,
+                p2.speed,
+                math.atan(p1.speed_y / p1.speed_x),
+                math.atan(p1.speed_y / p1.speed_x),
+                math.atan((p2.y - p1.y) / (p2.x - p1.x))
+            )
 
+    @staticmethod
+    def get_velocities2d(m1, m2, v1, v2, q1, q2, phi):
+        v1x = v1 * math.cos(q1 - phi)
+        v1y = v1 * math.sin(q1 - phi)
+        v2x = v2 * math.cos(q2 - phi)
+        v2y = v2 * math.sin(q2 - phi)
+        velocities = []
+        for v1_1d, v2_1d in [(v1x, v2x), (v1y, v2y)]:
+            velocities.append(Game.get_velocities(m1, m2, v1_1d, v2_1d))
+        return velocities
+
+    @staticmethod
+    def get_velocities(m1, m2, v1, v2):
+        a = m2 * (m2 + m1)
+        b = - 2 * m2 * (m1 * v1 + m2 * v2)
+        c = m2 * (m2 - m1) * v2 ** 2 + 2 * m1 * m2 * v1 * v2
+        d = (b ** 2 - 4 * a * c) ** 0.5
+        u21, u22 = (-b + d) / (2 * a), (-b - d) / (2 * a)
+        getu1 = lambda x: (m1 * v1 + m2 * v2 - m2 * x) / m1
+        u11, u12 = getu1(u21), getu1(u22)
+        return (u11, u21) if (u11, u21) != (v1, v2) else (u12, u22)
 
     @staticmethod
     def diff(dict1, dict2):

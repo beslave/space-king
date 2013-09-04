@@ -10,8 +10,8 @@ import math
 @logging_on
 class Player(WebSocketHandler):
 
-    @classmethod
-    def new_ship(cls, x=0, y=0, angle=0):
+    @staticmethod
+    def new_ship(x=0, y=0, angle=0):
         return dict(
             type="ship",
             m=0,
@@ -111,3 +111,7 @@ class Player(WebSocketHandler):
 
     def __command_right__(self, state="on"):
         self.ship['is_right'] = state != "off"
+
+    @property
+    def speed(self):
+        return (self.speed_x ** 2 + self.speed_y ** 2) ** 0.5

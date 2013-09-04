@@ -24,8 +24,6 @@ def logging_on(cls):
 
 
 def print_logs():
-    print "*" * 100
-    print "Logs:"
     for name, log in __LOGS__.iteritems():
         print "{:=^100}".format(name.upper())
         for func, params in log.iteritems():
@@ -41,11 +39,13 @@ def print_logs():
 def _patch_method(log, method):
     @wraps(method)
     def patched_method(*a, **k):
-        if not ismethod(method) or method.__self__:
-            a = a[1:]
         start = time()
         rez = method(*a, **k)
         end = time()
         log[:] = log[0] + 1, log[1] + end - start
         return rez
+    if not ismethod(method):
+        return staticmethod(patched_method)
+    if method.__self__:
+        return classmethod(patched_method)
     return patched_method
