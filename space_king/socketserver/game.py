@@ -1,4 +1,5 @@
 # coding: utf-8
+from libs import compare, div
 from logger import logging_on
 from space_king import settings
 from twisted.internet import reactor
@@ -8,24 +9,23 @@ import math
 import time
 
 
-def div(a, b):
-    if a == 0:
-        return 0
-    if b == 0:
-        return math.copysign(float("inf"), a)
-    return a / b
-
-
 @logging_on
 class Game(object):
 
+    ATTENUATION = 0.3
+
     def __init__(self, player1, player2):
+        self.check_distance = False
         self.player1 = player1
         self.player2 = player2
         self.state1 = {}
         self.state2 = {}
         self.is_play = True
         self.t1 = time.time()
+        for p1, p2 in zip([player1, player2], [player1, player2]):
+            p1.transport.write(json.dumps(p1.ship))
+            p1.transport.write(json.dumps([p2.ship]))
+        self.play()
 
     def play(self):
         if self.is_play:
@@ -44,31 +44,33 @@ class Game(object):
 
     def next_frame(self):
         for player in [self.player1, self.player2]:
-            self.change_speed(player)
-            self.change_angle(player)
             self.move_ship(player)
             self.fix_positions(player)
+            self.change_speed(player)
+            self.change_angle(player)
             self.limit_speed(player)
+        self.check_distance = False
         self.check_shots()
 
     def change_speed(self, player):
+        player.speed = player.speed * (1 - self.ATTENUATION * self.dT)
         if player.is_backward:
-            player.speed_x -= player.acceleration_forward * math.cos(player.angle) * (self.t2 - self.t1)
-            player.speed_y += player.acceleration_forward * math.sin(player.angle) * (self.t2 - self.t1)
+            player.vx -= player.acceleration_backward * math.cos(player.angle) * self.dT
+            player.vy -= player.acceleration_backward * math.sin(player.angle) * self.dT
         if player.is_forward:
-            player.speed_x += player.acceleration_forward * math.cos(player.angle) * (self.t2 - self.t1)
-            player.speed_y -= player.acceleration_forward * math.sin(player.angle) * (self.t2 - self.t1)
+            player.vx += player.acceleration_forward * math.cos(player.angle) * self.dT
+            player.vy += player.acceleration_forward * math.sin(player.angle) * self.dT
 
     def change_angle(self, player):
-        if player.is_forward or player.is_backward:
+        if True or player.is_forward or player.is_backward:
             if player.is_left:
-                player.angle += player.angle_speed * (self.t2 - self.t1)
+                player.angle += player.angle_speed * self.dT
             if player.is_right:
-                player.angle -= player.angle_speed * (self.t2 - self.t1)
+                player.angle -= player.angle_speed * self.dT
 
     def move_ship(self, player):
-        player.x += player.speed_x * (self.t2 - self.t1)
-        player.y += player.speed_y * (self.t2 - self.t1)
+        player.x += player.speed_x * self.dT
+        player.y += player.speed_y * self.dT
 
     def fix_positions(self, player):
         if player.x > settings.SPACE_RADIUS:
@@ -81,40 +83,64 @@ class Game(object):
             player.y = settings.SPACE_RADIUS
 
     def limit_speed(self, player):
-        player.speed_x = min(player.max_speed, player.speed_x)
-        player.speed_x = max(-player.max_speed, player.speed_x)
-        player.speed_y = min(player.max_speed, player.speed_y)
-        player.speed_y = max(-player.max_speed, player.speed_y)
+        player.vx = min(player.max_speed, player.vx)
+        player.vx = max(-player.max_speed, player.vx)
+        player.vy = min(player.max_speed, player.vy)
+        player.vy = max(-player.max_speed, player.vy)
 
     def check_shots(self):
         p1, p2 = self.player1, self.player2
-        distance = ((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2) ** 0.5
         # if shot
-        if distance <= p1.radius + p2.radius:
-            p1.speed_x, p1.speed_y, p2.speed_x, p2.speed_y = self.get_velocities2d(
-                p1.m,
-                p2.m,
-                p1.speed,
-                p2.speed,
-                math.atan(div(p1.speed_y, p1.speed_x)),
-                math.atan(div(p2.speed_y, p2.speed_x)),
-                math.atan(div(p2.y - p1.y, p2.x - p1.x))
-            )
+        if self.distance < p1.radius + p2.radius:
+            print "_" * 80
+            print "Old Speeds: ", self.player1.vx, self.player1.vy, self.player2.vx, self.player2.vy
+            phi = math.atan(div(p2.y - p1.y, p2.x - p1.x))
+            args = (p1.m, p2.m, p1.speed, p2.speed, p1.q, p2.q, phi)
+            print "Old distance: ", self.distance
+            print "Args: ", args
+            p1.vx, p1.vy, p2.vx, p2.vy = self.get_velocities2d(*args)
+            print "New Speeds: ", self.player1.vx, self.player1.vy, self.player2.vx, self.player2.vy
+
+            xc, yc = (p1.x + p2.x) / 2.0, (p1.y + p2.y) / 2.0
+            L = p1.radius + p2.radius
+            lx = abs(math.cos(math.pi + phi) * L / 2)
+            ly = abs(math.sin(math.pi + phi) * L / 2)
+            p1.x = xc + lx * div(p1.x - xc, abs(p1.x - xc))
+            p2.x = xc + lx * div(p2.x - xc, abs(p2.x - xc))
+            p1.y = yc + ly * div(p1.y - yc, abs(p1.y - yc))
+            p2.y = yc + ly * div(p2.y - yc, abs(p2.y - yc))
+            print "New distance: ", self.distance
+            self.check_distance = True
+
+    @property
+    def dT(self):
+        return self.t2 - self.t1
+
+    @property
+    def distance(self):
+        return ((self.player1.x - self.player2.x) ** 2 + (self.player1.y - self.player2.y) ** 2) ** 0.5
 
     @staticmethod
     def get_velocities2d(m1, m2, v1, v2, q1, q2, phi):
         _v1x, _v1y = v1 * math.cos(q1), v1 * math.sin(q1)
         _v2x, _v2y = v2 * math.cos(q2), v2 * math.sin(q2)
+        print "v1 (x, y):", _v1x, _v1y
+        print "v2 (x, y):", _v2x, _v2y
 
-        v1x, v1y = Game.rotate(_v1x, _v1y, phi)
-        v2x, v2y = Game.rotate(_v2x, _v2y, phi)
+        v1x, v1y = Game.rotate(_v1x, _v1y, -phi)
+        v2x, v2y = Game.rotate(_v2x, _v2y, -phi)
+        print "Vphi1 (x, y):", v1x, v1y
+        print "Vphi2 (x, y):", v2x, v2y
 
-        velocities = []
-        for v1_1d, v2_1d in [(v1x, v2x), (v1y, v2y)]:
-            velocities.append(Game.get_velocities(m1, m2, v1_1d, v2_1d))
+        _u1x, _u2x = Game.get_velocities(m1, m2, v1x, v2x)
+        _u1y, _u2y = v1y, v2y
+        print "u1_phi (x, y):", _u1x, _u1y
+        print "u2_phi (x, y):", _u2x, _u2y
 
-        u1x, u1y = Game.rotate(velocities[0][0], velocities[1][0], -phi)
-        u2x, u2y = Game.rotate(velocities[0][1], velocities[1][1], -phi)
+        u1x, u1y = Game.rotate(_u1x, _u1y, phi)
+        u2x, u2y = Game.rotate(_u2x, _u2y, phi)
+        print "Result u1 (x, y):", u1x, u1y
+        print "Result u2 (x, y):", u2x, u2y
 
         return u1x, u1y, u2x, u2y
 
@@ -127,7 +153,8 @@ class Game(object):
         u21, u22 = (-b + d) / (2 * a), (-b - d) / (2 * a)
         getu1 = lambda x: (m1 * v1 + m2 * v2 - m2 * x) / m1
         u11, u12 = getu1(u21), getu1(u22)
-        return (u11, u21) if (u11, u21) != (v1, v2) else (u12, u22)
+        print (u21, u22), (u11, u12)
+        return (u11, u12) if compare((u21, u22), (v1, v2)) else (u21, u22)
 
     @staticmethod
     def rotate(x, y, phi):

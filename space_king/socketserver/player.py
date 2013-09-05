@@ -1,4 +1,5 @@
 # coding: utf-8
+from libs import div
 from libs.websocket import WebSocketHandler
 from logger import logging_on
 from .game import Game
@@ -18,7 +19,7 @@ class Player(WebSocketHandler):
             x=x,
             y=y,
             angle=angle,
-            rotation=math.pi / 2 - angle,
+            rotation=0,  # math.pi / 2 - angle,
             radius=64,
             color=random.choice(["#C95", "#777", "#669"]),
             light_color=random.choice(["#F00", "#0F0", "#00F", "#FF0", "#F0F", "#0FF"]),
@@ -33,7 +34,7 @@ class Player(WebSocketHandler):
         self.enemy = None
         self.speed_x = 0
         self.speed_y = 0
-        self.angle_speed = math.pi * 1.5
+        self.angle_speed = math.pi * 0.9
         self.acceleration_forward = 500
         self.acceleration_backward = 400
         self.max_speed = 250
@@ -56,15 +57,12 @@ class Player(WebSocketHandler):
         if self.transport.__USERS__:
             self.enemy = self.transport.__USERS__.pop()
             self.enemy.enemy = self
-        else:
-            self.transport.__USERS__.append(self)
-        self.ship = self.new_ship(0, 130 if self.enemy is None else -130, math.pi / 2 if self.enemy is None else - math.pi / 2)
-        self.transport.write(json.dumps(self.ship))
-        if self.enemy:
-            self.enemy.transport.write(json.dumps([self.ship]))
-            self.transport.write(json.dumps([self.enemy.ship]))
+            self.ship = self.new_ship(0, -130, - math.pi / 2)
             self.game = Game(self, self.enemy)
-            self.game.play()
+        else:
+            self.ship = self.new_ship(0, 130, math.pi / 2)
+            self.transport.__USERS__.append(self)
+
 
     def connectionLost(self, reason):
         # print "Lost connection:", reason
@@ -79,7 +77,6 @@ class Player(WebSocketHandler):
 
 
     def frameReceived(self, frame):
-        # self.transport.write(frame)
         parts = frame.split(" ")
         if len(parts) > 0:
             command_name = "__command_{}__".format(parts[0])
@@ -114,4 +111,34 @@ class Player(WebSocketHandler):
 
     @property
     def speed(self):
-        return (self.speed_x ** 2 + self.speed_y ** 2) ** 0.5
+        return (self.vx ** 2 + self.vy ** 2) ** 0.5
+
+    @speed.setter
+    def speed(self, value):
+        self.vx = value * math.cos(self.q)
+        self.vy = value * math.sin(self.q)
+        print value, self.speed
+
+    @property
+    def vx(self):
+        return self.speed_x
+
+    @vx.setter
+    def vx(self, v):
+        self.speed_x = v
+
+    @property
+    def vy(self):
+        return -self.speed_y
+
+    @vy.setter
+    def vy(self, v):
+        self.speed_y = -v
+
+    @property
+    def q(self):
+        _q = math.atan(div(abs(self.vy), abs(self.vx)))
+        if self.vy >= 0:
+            return _q if self.vx >= 0 else _q + math.pi / 2
+        else:
+            return _q - math.pi / 2 if self.vx >= 0 else _q + math.pi
