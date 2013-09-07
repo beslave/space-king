@@ -7,37 +7,10 @@ var OBJECTS = [];
 
 var canvas = null;
 var context = null;
-var bcanvas = null;     // canvas buffer
-var bcontext = null;    // context of buffered canvas
-var map_size = 240;
-var mapcanvas = null;
-var mapcontext = null;
-
 
 var fon = new Image();
 fon.src = "/static/css/images/main_background.jpeg";
 
-$(document).ready(function(e){
-    $('li, a').hover(function(e){
-        $(this).addClass('hover');
-    }, function(e){
-        $(this).removeClass('hover');
-    });
-    if($('#gameID').size() > 0){
-        window.onresize = onResize;
-        initSocket();
-        canvas = document.getElementById('gameID');
-        context = canvas.getContext('2d');
-        bcanvas = document.createElement('canvas');
-        bcanvas.width = SPACE_RADIUS * 2;
-        bcanvas.height = SPACE_RADIUS * 2;
-        bcontext = bcanvas.getContext('2d');
-        mapcanvas = document.createElement('canvas');
-        mapcontext = mapcanvas.getContext('2d');
-        onResize();
-        draw();
-    }
-});
 
 function onResize(e){
     var menu = document.getElementById('menuID');
@@ -196,7 +169,7 @@ var Ship = function(kwargs){
         if(this.is_forward) this.draw_forward_fires();
         if(this.is_backward) this.draw_reverse_fires();
         this.draw_reverse_turbines();
-        this.flush(parent_context)
+        this.flush(parent_context);
         
     };
     obj.prepare_context = function(){
@@ -250,7 +223,7 @@ var Ship = function(kwargs){
         for(var r in rows){
             this.context.beginPath();
             this.context.moveTo(rows[r][1] - 0.4 * this.turbine_width,
-                                this.turbine_voffset + 1.1 * this.turbine_height)
+                                this.turbine_voffset + 1.1 * this.turbine_height);
             this.context.lineTo(rows[r][1] + 0.4 * this.turbine_width,
                                 this.turbine_voffset + 1.1 * this.turbine_height);
             this.context.lineTo(rows[r][1],
@@ -320,7 +293,7 @@ var Ship = function(kwargs){
         if(is_on && !prev) socket.send('left on');
         else if(!is_on && prev) socket.send('left off');
         this.is_left = is_on;
-    }
+    };
     check_performance("Ship drawing", obj, [
         "prepare_context",
         "rotate_ship",
@@ -337,70 +310,149 @@ var Ship = function(kwargs){
         "left"
     ]);
     return obj;
-}
+};
 
-function draw(){
-    if(OBJECTS.length > 0){
-        var dx = OBJECTS[0].x  + SPACE_RADIUS - canvas.width / 2;
-        var dy = OBJECTS[0].y  + SPACE_RADIUS - canvas.height / 2;
-        var ox = 0;
-        var oy = 0;
-        if(dx < 0) { ox = -dx; dx = 0; }
-        if(dx > SPACE_RADIUS * 2 - canvas.width) { ox = SPACE_RADIUS * 2 - canvas.width - dx; dx = SPACE_RADIUS * 2 - canvas.width; }
-        if(dy < 0) { oy = -dy; dy = 0; }
-        if(dy > SPACE_RADIUS * 2 - canvas.height){ oy = SPACE_RADIUS * 2 - canvas.height - dy; dy = SPACE_RADIUS * 2 - canvas.height; }
-        bcanvas.width = bcanvas.width;
-        var k = Math.max(bcanvas.width / fon.width, bcanvas.height / fon.height);
+
+var GAME = {
+    map_size: 240,
+    start: function(){
+        this.bcanvas = document.createElement('canvas');
+        this.bcanvas.width = SPACE_RADIUS * 2;
+        this.bcanvas.height = SPACE_RADIUS * 2;
+        this.bcontext = this.bcanvas.getContext('2d');
+        this.mapcanvas = document.createElement('canvas');
+        this.mapcontext = this.mapcanvas.getContext('2d');
+        this.draw();
+    },
+    draw: function(){
+        if(OBJECTS.length > 0){
+            var pos = this.getPosition();
+            this.prepareBuffer();
+            this.drawBackground(pos.x, pos.y);
+            this.drawArea();
+            this.drawObjects();            
+            this.drawMap();
+            this.showMap(pos.x, pos.y);
+            this.prepareContext();
+            this.showBuffer(pos.x, pos.y);
+        }
+        setTimeout(function(){ GAME.draw(); }, 0);        
+    },
+    getPosition: function(){
+        var x = OBJECTS[0].x  + SPACE_RADIUS - canvas.width / 2;
+        var y = OBJECTS[0].y  + SPACE_RADIUS - canvas.height / 2;
+        if(x < 0) x = 0;
+        if(x > SPACE_RADIUS * 2 - canvas.width) x = SPACE_RADIUS * 2 - canvas.width;
+        if(y < 0) y = 0;
+        if(y > SPACE_RADIUS * 2 - canvas.height) y = SPACE_RADIUS * 2 - canvas.height;
+        return {
+            x: x,
+            y: y
+        };
+    },
+    prepareBuffer: function(){
+        this.bcanvas.width = this.bcanvas.width;
+        this.bcontext.translate(SPACE_RADIUS, SPACE_RADIUS);
+    },
+    drawBackground: function(x, y){
+        var k = Math.max(this.bcanvas.width / fon.width, this.bcanvas.height / fon.height);
         var f_width = fon.width * k;
         var f_height = fon.height * k;
-        bcontext.translate(SPACE_RADIUS, SPACE_RADIUS);
-        bcontext.drawImage(fon, 0, 0, fon.width, fon.height,
-            - f_width / 2, - f_height / 2, f_width, f_height);
-        bcontext.strokeStyle = "#F00";
-        bcontext.lineWidth = SPACE_RADIUS * 0.01;
-        bcontext.beginPath();
-        bcontext.arc(0, 0, SPACE_RADIUS * 0.90, Math.PI * 2, false);
-        bcontext.closePath();
-        bcontext.stroke();
-        // Draw objects to buffer canvas
-        for(var i = 1; i < OBJECTS.length; i++){
-            OBJECTS[i].draw(bcontext);
-        }
-        OBJECTS[0].draw(bcontext);
-        // Draw map
-        mapcanvas.width = map_size;
-        mapcanvas.height = map_size;
-        mapcontext.translate(map_size/2, map_size/2);
-        mapcontext.rotate(- OBJECTS[0].rotation)
-        mapcontext.fillStyle = "rgba(200,224,127,0.4)";
-        mapcontext.strokeStyle = "rgba(255,0,0,0.4)";
-        mapcontext.lineWidth = map_size * 0.02;
-        mapcontext.beginPath()
-        mapcontext.arc(0, 0, map_size * 0.45, Math.PI * 2, false);
-        mapcontext.closePath();
-        mapcontext.fill();
-        mapcontext.stroke();
-        mapcontext.lineWidth = map_size * 0.03;
+        var ix = (f_width - this.bcanvas.width) / (2.0 * k) + x / k;
+        var iy = (f_height - this.bcanvas.height) / (2.0 * k) + y / k;
+        var iw = canvas.width / k;
+        var ih = canvas.height / k;
+        this.bcontext.drawImage(fon, ix, iy, iw, ih,//0, 0, fon.width, fon.height,
+            x - this.bcanvas.width / 2, y - this.bcanvas.height / 2, canvas.width, canvas.height);
+    },
+    drawArea: function(){
+        this.bcontext.strokeStyle = "#F00";
+        this.bcontext.lineWidth = SPACE_RADIUS * 0.01;
+        this.bcontext.beginPath();
+        this.bcontext.arc(0, 0, SPACE_RADIUS * 0.90, Math.PI * 2, false);
+        this.bcontext.closePath();
+        this.bcontext.stroke();
+    },
+    drawObjects: function(){
+        for(var i in OBJECTS) OBJECTS[i].draw(this.bcontext);
+    },
+    drawMap: function(){
+        this.mapcanvas.width = this.map_size;
+        this.mapcanvas.height = this.map_size;
+        this.mapcontext.translate(this.map_size/2, this.map_size/2);
+        this.mapcontext.rotate(- OBJECTS[0].rotation);
+        this.mapcontext.fillStyle = "rgba(200,224,127,0.4)";
+        this.mapcontext.strokeStyle = "rgba(255,0,0,0.4)";
+        this.mapcontext.lineWidth = this.map_size * 0.02;
+        this.mapcontext.beginPath();
+        this.mapcontext.arc(0, 0, this.map_size * 0.45, Math.PI * 2, false);
+        this.mapcontext.closePath();
+        this.mapcontext.fill();
+        this.mapcontext.stroke();
+        this.mapcontext.lineWidth = this.map_size * 0.03;
         for(var i = OBJECTS.length - 1; i >= 0; i--){
-            if(i == 0){ mapcontext.fillStyle = "rgba(255,255,127,0.5)"; mapcontext.strokeStyle = "rgba(196,255,63,0.3)"; }
-            else { mapcontext.fillStyle = "rgba(255,127,127,0.5)"; mapcontext.strokeStyle = "rgba(255,127,63,0.3)"; }
-            mapcontext.beginPath();
-            mapcontext.arc(OBJECTS[i].x * map_size / bcanvas.width, OBJECTS[i].y * map_size / bcanvas.height,
-                map_size * OBJECTS[i].radius / SPACE_RADIUS * 0.5, Math.PI * 2, false);
-            mapcontext.closePath();
-            mapcontext.fill();
-            mapcontext.stroke();
+            if(i == 0){ this.mapcontext.fillStyle = "rgba(255,255,127,0.5)"; this.mapcontext.strokeStyle = "rgba(196,255,63,0.3)"; }
+            else { this.mapcontext.fillStyle = "rgba(255,127,127,0.5)"; this.mapcontext.strokeStyle = "rgba(255,127,63,0.3)"; }
+            this.mapcontext.beginPath();
+            this.mapcontext.arc(OBJECTS[i].x * this.map_size / this.bcanvas.width, OBJECTS[i].y * this.map_size / this.bcanvas.height,
+                this.map_size * OBJECTS[i].radius / SPACE_RADIUS * 0.5, Math.PI * 2, false);
+            this.mapcontext.closePath();
+            this.mapcontext.fill();
+            this.mapcontext.stroke();
         }
+    },
+    showMap: function(x, y){
+        this.bcontext.translate(x, y);
+        var mx = canvas.width - this.map_size - this.bcanvas.width / 2;
+        var my = canvas.height - this.map_size - this.bcanvas.height / 2;
+        if(OBJECTS[0].rotation != 0) mx -= canvas.width - this.map_size;
+        if(OBJECTS[0].rotation != 0) my -= canvas.height - this.map_size; //this.map_size;
+        this.bcontext.drawImage(
+            this.mapcanvas,
+            0, 0, this.map_size, this.map_size,
+            mx, my, this.map_size, this.map_size
+        );
+    },
+    prepareContext: function(){
         canvas.width = canvas.width;
         context.translate(canvas.width / 2, canvas.height / 2);
-        context.rotate(OBJECTS[0].rotation);
+    },
+    showBuffer: function(x, y){
+        context.rotate(-OBJECTS[0].rotation);
         context.drawImage(
-            bcanvas,
-            dx, dy, canvas.width, canvas.height,
+            this.bcanvas,
+            x, y, canvas.width, canvas.height,
             - canvas.width / 2, - canvas.height / 2, canvas.width, canvas.height
         );
-        context.rotate(- OBJECTS[0].rotation);
-        context.drawImage(mapcanvas, 0, 0, map_size, map_size, canvas.width / 2 - map_size, canvas.height / 2 - map_size, map_size, map_size);
     }
-    setTimeout(draw, 0);
-}
+};
+
+check_performance("Game drawing", GAME, [
+    "start",
+    "draw",
+    "getPosition",
+    "prepareBuffer",
+    "drawBackground",
+    "drawArea",
+    "drawObjects",
+    "drawMap",
+    "showMap",
+    "prepareContext",
+    "showBuffer"
+]);
+
+$(document).ready(function(e){
+    $('li, a').hover(function(e){
+        $(this).addClass('hover');
+    }, function(e){
+        $(this).removeClass('hover');
+    });
+    if($('#gameID').size() > 0){
+        window.onresize = onResize;
+        initSocket();
+        canvas = document.getElementById('gameID');
+        context = canvas.getContext('2d');
+        onResize();
+        GAME.start();
+    }
+});

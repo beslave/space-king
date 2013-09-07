@@ -83,10 +83,8 @@ class Game(object):
             player.y = settings.SPACE_RADIUS
 
     def limit_speed(self, player):
-        player.vx = min(player.max_speed, player.vx)
-        player.vx = max(-player.max_speed, player.vx)
-        player.vy = min(player.max_speed, player.vy)
-        player.vy = max(-player.max_speed, player.vy)
+        player.speed = min(player.max_speed, player.speed)
+        player.speed = max(-player.max_speed, player.speed)
 
     def check_shots(self):
         p1, p2 = self.player1, self.player2
