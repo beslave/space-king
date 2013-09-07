@@ -359,10 +359,8 @@ class WebSocketHandler(object):
     """
 
     def __init__(self, transport):
-        """
-        Create the handler, with the given transport
-        """
         self.transport = transport
+        super(WebSocketHandler, self).__init__()
 
     def frameReceived(self, frame):
         """
