@@ -380,7 +380,6 @@ var GAME = {
         this.mapcanvas.width = this.map_size;
         this.mapcanvas.height = this.map_size;
         this.mapcontext.translate(this.map_size/2, this.map_size/2);
-        this.mapcontext.rotate(- OBJECTS[0].rotation);
         this.mapcontext.fillStyle = "rgba(200,224,127,0.4)";
         this.mapcontext.strokeStyle = "rgba(255,0,0,0.4)";
         this.mapcontext.lineWidth = this.map_size * 0.02;
