@@ -1,11 +1,13 @@
-from libs import PROJECT_DIR
 from os import getcwd, path
 
 import sys
 
-activate_this = path.join(PROJECT_DIR, 'env/bin/activate_this.py')
+
+DIR = path.dirname(path.realpath(__file__))
+
+activate_this = path.join(DIR, 'env/bin/activate_this.py')
 execfile(activate_this, dict(__file__=activate_this))
 
-sys.path.insert(0, getcwd())
+sys.path.insert(0, DIR)
 
 from space_king import app as application
