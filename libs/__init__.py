@@ -1,5 +1,13 @@
 # coding: utf-8
 from math import copysign
+import os
+
+
+PROJECT_DIR = os.path.join(
+    os.path.dirname(os.path.realpath(__file__)),
+    ".."
+)
+
 
 def compare(list1, list2):
     return reduce(
