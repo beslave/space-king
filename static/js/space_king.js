@@ -417,7 +417,8 @@ var GAME = {
         context.translate(canvas.width / 2, canvas.height / 2);
     },
     showBuffer: function(x, y){
-        context.rotate(-OBJECTS[0].rotation);
+        context.rotate(0)
+        // context.rotate(-OBJECTS[0].rotation);
         context.drawImage(
             this.bcanvas,
             x, y, canvas.width, canvas.height,

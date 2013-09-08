@@ -1,6 +1,6 @@
 # coding: utf-8
 from .game import Game
-from libs import div
+from libs import angle
 from libs.websocket import WebSocketHandler
 from logger import logging_on
 from math import atan, cos, pi, sin
@@ -139,8 +139,4 @@ class Player(WebSocketHandler):
 
     @property
     def q(self):
-        _q = atan(div(abs(self.vy), abs(self.vx)))
-        if self.vy >= 0:
-            return _q if self.vx >= 0 else pi - _q
-        else:
-            return -_q if self.vx >= 0 else pi + _q
+        return angle(self.vy, self.vx)

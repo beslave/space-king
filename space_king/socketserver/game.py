@@ -1,5 +1,5 @@
 # coding: utf-8
-from libs import div, diff
+from libs import angle, div, diff
 from libs.physics.collisions import get_velocities2d
 from logger import logging_on
 from math import atan, cos, pi, sin
@@ -90,7 +90,7 @@ class Game(object):
         p1, p2 = self.player1, self.player2
         # if shot
         if self.distance < p1.radius + p2.radius:
-            phi = atan(div(p2.y - p1.y, p2.x - p1.x))
+            phi = self.phi
             p1.vx, p1.vy, p2.vx, p2.vy = get_velocities2d(p1.m, p2.m, p1.speed, p2.speed, p1.q, p2.q, phi)
 
             xc, yc = (p1.x + p2.x) / 2.0, (p1.y + p2.y) / 2.0
@@ -106,6 +106,10 @@ class Game(object):
     @property
     def dT(self):
         return self.t2 - self.t1
+
+    @property
+    def phi(self):
+        return angle(self.player1.y - self.player2.y, self.player2.x - self.player1.x)
 
     @property
     def distance(self):

@@ -1,5 +1,5 @@
 # coding: utf-8
-from math import copysign
+from math import atan, copysign, pi
 import os
 
 
@@ -21,6 +21,14 @@ def div(a, b):
     if b == 0:
         return copysign(float("inf"), a)
     return a / b
+
+
+def angle(y, x):
+    a = atan(div(abs(y), abs(x)))
+    if y >= 0:
+        return a if x >= 0 else pi - a
+    else:
+        return -a if x >= 0 else pi + a
 
 
 def diff(dict1, dict2):
