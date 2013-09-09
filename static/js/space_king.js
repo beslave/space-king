@@ -5,34 +5,24 @@ var socket;
 var GAME_STATE = 0;
 var OBJECTS = [];
 
-var canvas = null;
-var context = null;
+var canvas, context;
 
 var fon = new Image();
 fon.src = "/static/css/images/main_background.jpeg";
 
 
 function onResize(e){
-    var menu = document.getElementById('menuID');
-    var adv = document.getElementById('advID');
-    var content = document.getElementById('contentID');
-    var footer = document.getElementById('footerID');
+    var CONTENT_BLOCK = document.getElementById("contentID");
+    var menu = document.getElementById("menuID");
     var menu_style = menu.current_style || window.getComputedStyle(menu);
-    var adv_style = adv.current_style || window.getComputedStyle(adv);
-    var content_style = content.current_style || window.getComputedStyle(content);
-    var footer_style = footer.current_style || window.getComputedStyle(footer);
-    var busyHeight = menu.offsetHeight + parseInt(menu_style.marginTop) + parseInt(menu_style.marginBottom)
-        + adv.offsetHeight + parseInt(adv_style.marginTop) + parseInt(adv_style.marginBottom)
-        + parseInt(content_style.marginTop) + parseInt(content_style.marginBottom)
-        + footer.offsetHeight + parseInt(footer_style.marginTop) + parseInt(footer_style.marginBottom);
-    if(canvas){
-        var game_height = Math.max(window.innerHeight - busyHeight, 240);
-        var game_width = Math.max(content.offsetWidth, 240);
-        canvas.height = game_height;
-        canvas.style.height = game_height;
-        canvas.width = game_width;
-        canvas.style.width = game_width;
-    }
+    var content_style = CONTENT_BLOCK.current_style || window.getComputedStyle(CONTENT_BLOCK);
+    var busyHeight = 0;
+    busyHeight += menu.offsetHeight + parseInt(menu_style.marginTop) + parseInt(menu_style.marginBottom);
+    busyHeight += parseInt(content_style.marginTop) + parseInt(content_style.marginBottom);
+    var content_height = Math.max(window.innerHeight - busyHeight, 240);
+    var content_width = Math.max(CONTENT_BLOCK.offsetWidth, 240);
+    CONTENT_BLOCK.style.width = content_width;
+    CONTENT_BLOCK.style.height = content_height;
 }
 
 function initSocket(){
@@ -41,10 +31,7 @@ function initSocket(){
         log("socket open");
     };
     socket.onclose = function(event){
-        if(event.wasClean){
-        } else {
-            // try reconect
-            log("socket close");
+        if(!event.wasClean){
             OBJECTS = [];
             GAME_STATE = 0;
             setTimeout(initSocket, 1000);
@@ -440,6 +427,7 @@ check_performance("Game drawing", GAME, [
     "showBuffer"
 ]);
 
+
 $(document).ready(function(e){
     $('li, a').hover(function(e){
         $(this).addClass('hover');
@@ -448,10 +436,8 @@ $(document).ready(function(e){
     });
     if($('#gameID').size() > 0){
         window.onresize = onResize;
-        initSocket();
         canvas = document.getElementById('gameID');
         context = canvas.getContext('2d');
         onResize();
-        GAME.start();
     }
 });

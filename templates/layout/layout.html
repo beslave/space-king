@@ -6,13 +6,11 @@
     </head>
     <body>
         <div id="menuID">{% include "layout/menu.html" %}</div>
-        <div id="advID">Some advertisement</div>
         <div id="contentID">
             {% block content %}
                 Some content will be here
             {% endblock %}
         </div>
-        <div id="footerID">{% include "layout/footer.html" %}</div>
         <script type="text/javascript" src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='js/space_king.js') }}"></script>
     </body>
