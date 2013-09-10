@@ -25,7 +25,7 @@ class Game(object):
         self.t1 = time.time()
         for p1, p2 in zip([player1, player2], [player1, player2]):
             p1.transport.write(json.dumps(p1.ship))
-            p1.transport.write(json.dumps([p2.ship]))
+            p1.transport.write(json.dumps(p2.ship))
 
     def play(self):
         if self.is_play:
