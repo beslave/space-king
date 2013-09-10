@@ -11,6 +11,6 @@ a {color:#FFF;}
 #menuID>ul>li.current>a {color:#777;}
 
 #contentID {margin:0px; text-align:center;}
-#gameID {background-color:rgba(0,0,0,0); position:relative; z-index:1;}
+#gameID {background-color:rgba(0,0,0,1); position:relative; z-index:1;}
 
 #footerID {position:fixed; bottom:0; margin:10px 5px; width:100%; z-index:0;}

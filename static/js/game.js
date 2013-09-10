@@ -1,9 +1,9 @@
-function GAME(canvas, fon, SPACE_RADIUS){
+function GAME(DISPLAY){
     var obj = {};
-    obj.fon = fon;
-    obj.canvas = canvas;
-    obj.context = canvas.getContext("2d")
-    obj.SPACE_RADIUS = SPACE_RADIUS || 1000;
+    obj.fon = DISPLAY.fon;
+    obj.canvas = DISPLAY.canvas;
+    obj.context = DISPLAY.context;
+    obj.SPACE_RADIUS = DISPLAY.SPACE_RADIUS || 1000;
 
     // 0 - SELF SHIP PARAMS LOADING
     // 1 - OTHER OBJECTS LOADING
@@ -15,9 +15,9 @@ function GAME(canvas, fon, SPACE_RADIUS){
     obj.bcanvas = document.createElement("canvas");
     obj.bcanvas.width = SPACE_RADIUS * 2;
     obj.bcanvas.height = SPACE_RADIUS * 2;
-    obj.bcontext = this.bcanvas.getContext('2d');
+    obj.bcontext = obj.bcanvas.getContext('2d');
     obj.mapcanvas = document.createElement('canvas');
-    obj.mapcontext = this.mapcanvas.getContext('2d');
+    obj.mapcontext = obj.mapcanvas.getContext('2d');
 
     obj.socket = new WebSocket(SOCKET_URL);
     obj.socket.onopen = function(){
@@ -40,6 +40,21 @@ function GAME(canvas, fon, SPACE_RADIUS){
     };
     obj.socket.onerror = function(error){
         log("socket error:", error);
+    };
+
+
+    obj.onkeydown = function(e){
+        if(e.keyCode == 38 || e.keyCode == 87) this.player1.toward(true);
+        else if(e.keyCode == 40 || e.keyCode == 83) this.player1.backward(true);
+        else if(e.keyCode == 37 || e.keyCode == 65) this.player1.left(true);
+        else if(e.keyCode == 39 || e.keyCode == 68) this.player1.right(true);
+    };
+
+    obj.onkeyup = function(e){
+        if(e.keyCode == 38 || e.keyCode == 87) OBJECTS[0].forward(false);
+        else if(e.keyCode == 40 || e.keyCode == 83) OBJECTS[0].backward(false);
+        else if(e.keyCode == 37 || e.keyCode == 65) OBJECTS[0].left(false);
+        else if(e.keyCode == 39 || e.keyCode == 68) OBJECTS[0].right(false);
     };
 
     obj.draw = function(){
@@ -157,6 +172,7 @@ function GAME(canvas, fon, SPACE_RADIUS){
             this.canvas.width, this.canvas.height
         );
     };
+    obj.onloop = function(){ obj.draw; }
     check_performance("Game drawing", obj, [
         "start",
         "draw",
