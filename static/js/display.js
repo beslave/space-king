@@ -27,6 +27,11 @@ var DISPLAY = function(canvas, SPACE_RADIUS){
             else this[x] = null;
             if(x != "onloop") window[x] = this[x];
         }
+        if(this.handler){
+            this.handler.close();
+            delete this.handler;
+        }
+        this.handler = handler;
     };
     obj.playGame = function(){
         this.resetHandlers(GAME(this));

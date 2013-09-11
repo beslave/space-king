@@ -202,15 +202,17 @@ function GAME(DISPLAY){
     obj.endDrawing = function(){
         this.context.translate(0, 0);
     };
-    obj.win = function(){
+    obj.close = function(){
         this.socket.onmessage = null;
+        this.socket.onclose = null;
         this.socket.close();
+        delete this;
+    };
+    obj.win = function(){
         obj.display.showMenu();
         obj.display.addInfoMessage("You win!");
     };
     obj.lose = function(){
-        this.socket.onmessage = null;
-        this.socket.close();
         obj.display.showMenu();
         obj.display.addErrorMessage("You lose!");
     };

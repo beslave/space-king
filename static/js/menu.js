@@ -86,5 +86,9 @@ function MENU(DISPLAY){
         for(var i = 0; i < obj.items.length; i++) obj.items[i].hover(ex, ey);
     };
 
+    obj.close = function(){
+        delete this;
+    };
+
     return obj;
 }
