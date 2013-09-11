@@ -27,14 +27,14 @@ function GAME(DISPLAY){
     obj.socket.onmessage = function(event){
         var data = $.parseJSON(event.data);
         if(obj.GAME_STATE == 0){
-            obj.players[0] = Ship(data);
+            obj.players[0] = Ship(data, obj);
             obj.GAME_STATE = 1;
         } else if(obj.GAME_STATE == 1){
-            obj.players[1] = Ship(data);
+            obj.players[1] = Ship(data, obj);
             obj.GAME_STATE = 2;
         } else if(obj.GAME_STATE == 2){
             for(var i=0; i < data.length; i++){
-                for(var key in data[i]) obj.players[key] = data[i][key];
+                for(var key in data[i]) obj.players[i][key] = data[i][key];
             }
         }
     };
@@ -42,19 +42,27 @@ function GAME(DISPLAY){
         log("socket error:", error);
     };
 
+    obj.notify = function(command){
+        this.socket.send(command);
+    }
+
 
     obj.onkeydown = function(e){
-        if(e.keyCode == 38 || e.keyCode == 87) this.player1.toward(true);
-        else if(e.keyCode == 40 || e.keyCode == 83) this.player1.backward(true);
-        else if(e.keyCode == 37 || e.keyCode == 65) this.player1.left(true);
-        else if(e.keyCode == 39 || e.keyCode == 68) this.player1.right(true);
+        if(obj.players[0]){
+            if(e.keyCode == 38 || e.keyCode == 87) obj.players[0].forward(true);
+            else if(e.keyCode == 40 || e.keyCode == 83) obj.players[0].backward(true);
+            else if(e.keyCode == 37 || e.keyCode == 65) obj.players[0].left(true);
+            else if(e.keyCode == 39 || e.keyCode == 68) obj.players[0].right(true);
+        }
     };
 
     obj.onkeyup = function(e){
-        if(e.keyCode == 38 || e.keyCode == 87) OBJECTS[0].forward(false);
-        else if(e.keyCode == 40 || e.keyCode == 83) OBJECTS[0].backward(false);
-        else if(e.keyCode == 37 || e.keyCode == 65) OBJECTS[0].left(false);
-        else if(e.keyCode == 39 || e.keyCode == 68) OBJECTS[0].right(false);
+        if(obj.players[0]){
+            if(e.keyCode == 38 || e.keyCode == 87) obj.players[0].forward(false);
+            else if(e.keyCode == 40 || e.keyCode == 83) obj.players[0].backward(false);
+            else if(e.keyCode == 37 || e.keyCode == 65) obj.players[0].left(false);
+            else if(e.keyCode == 39 || e.keyCode == 68) obj.players[0].right(false);
+        }
     };
 
     obj.draw = function(){
@@ -147,8 +155,8 @@ function GAME(DISPLAY){
     };
     obj.showMap = function(x, y){
         this.bcontext.translate(x, y);
-        var mx = canvas.width - this.map_size - this.bcanvas.width / 2;
-        var my = canvas.height - this.map_size - this.bcanvas.height / 2;
+        var mx = this.canvas.width - this.map_size - this.bcanvas.width / 2;
+        var my = this.canvas.height - this.map_size - this.bcanvas.height / 2;
         if(this.players[0].rotation != 0)
             mx -= this.canvas.width - this.map_size;
         if(this.players[0].rotation != 0)
@@ -165,14 +173,16 @@ function GAME(DISPLAY){
     };
     obj.showBuffer = function(x, y){
         this.context.rotate(-this.players[0].rotation);
-        context.drawImage(
+        this.context.drawImage(
             this.bcanvas,
             x, y, this.canvas.width, this.canvas.height,
             - this.canvas.width / 2, - this.canvas.height / 2,
             this.canvas.width, this.canvas.height
         );
     };
-    obj.onloop = function(){ obj.draw; }
+    obj.onloop = function(){
+        if(obj.players[0] && obj.players[1]) obj.draw();
+    }
     check_performance("Game drawing", obj, [
         "start",
         "draw",

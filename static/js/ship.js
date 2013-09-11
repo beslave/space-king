@@ -1,5 +1,6 @@
-function Ship(kwargs){
+function Ship(kwargs, game){
     var obj = kwargs;
+    obj.game = game;
     obj.is_forward = false;
     obj.is_backward = false;
     obj.is_left = false;
@@ -126,26 +127,26 @@ function Ship(kwargs){
     };
     obj.forward = function(is_on){
         var prev = this.is_forward;
-        if(is_on && !prev) socket.send('forward on');
-        else if(!is_on && prev) socket.send('forward off');
+        if(is_on && !prev) this.game.notify('forward on');
+        else if(!is_on && prev) this.game.notify('forward off');
         this.is_forward = is_on;
     };
     obj.backward = function(is_on){
         var prev = this.is_backward;
-        if(is_on && !prev) socket.send('backward on');
-        else if(!is_on && prev) socket.send('backward off');
+        if(is_on && !prev) this.game.notify('backward on');
+        else if(!is_on && prev) this.game.notify('backward off');
         this.is_backward = is_on;
     };
     obj.right = function(is_on){
         var prev = this.is_right;
-        if(is_on && !prev) socket.send('right on');
-        else if(!is_on && prev) socket.send('right off');
+        if(is_on && !prev) this.game.notify('right on');
+        else if(!is_on && prev) this.game.notify('right off');
         this.is_right = is_on;
     };
     obj.left = function(is_on){
         var prev = this.is_left;
-        if(is_on && !prev) socket.send('left on');
-        else if(!is_on && prev) socket.send('left off');
+        if(is_on && !prev) this.game.notify('left on');
+        else if(!is_on && prev) this.game.notify('left off');
         this.is_left = is_on;
     };
     check_performance("Ship drawing", obj, [

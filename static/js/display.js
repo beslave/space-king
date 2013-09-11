@@ -1,6 +1,6 @@
 var DISPLAY = function(canvas, SPACE_RADIUS){
     var obj = {};
-    obj.FRAME_DELAY = 50;
+    obj.FRAME_DELAY = 10;
     obj.width = 0;
     obj.height = 0;
     obj.canvas = canvas;
@@ -19,7 +19,7 @@ var DISPLAY = function(canvas, SPACE_RADIUS){
             var x = this.event_handlers[i];
             if(handler && handler[x]) this[x] = handler[x];
             else this[x] = null;
-            if(x != "onloop") canvas[x] = this[x];
+            if(x != "onloop") window[x] = this[x];
         }
     };
 

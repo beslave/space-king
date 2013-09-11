@@ -23,7 +23,7 @@ class Game(object):
         self.state2 = {}
         self.is_play = True
         self.t1 = time.time()
-        for p1, p2 in zip([player1, player2], [player1, player2]):
+        for p1, p2 in zip([player1, player2], [player2, player1]):
             p1.transport.write(json.dumps(p1.ship))
             p1.transport.write(json.dumps(p2.ship))
 
@@ -34,13 +34,14 @@ class Game(object):
             self.t1 = self.t2
             diff1 = diff(self.state1, self.player1.ship)
             diff2 = diff(self.state2, self.player2.ship)
-            to_player1 = json.dumps([diff1, diff2])
-            to_player2 = json.dumps([diff2, diff1])
-            self.player1.transport.write(to_player1)
-            self.player2.transport.write(to_player2)
-            self.state1.update(self.player1.ship)
-            self.state2.update(self.player2.ship)
-            reactor.callLater(0.01, self.play)
+            if diff1 or diff2:
+                to_player1 = json.dumps([diff1, diff2])
+                to_player2 = json.dumps([diff2, diff1])
+                self.player1.transport.write(to_player1)
+                self.player2.transport.write(to_player2)
+                self.state1.update(self.player1.ship)
+                self.state2.update(self.player2.ship)
+            reactor.callLater(0.05, self.play)
 
     def next_frame(self):
         for player in [self.player1, self.player2]:
@@ -114,7 +115,6 @@ class Game(object):
     @property
     def distance(self):
         return ((self.player1.x - self.player2.x) ** 2 + (self.player1.y - self.player2.y) ** 2) ** 0.5
-
 
     def stop(self):
         self.is_play = False

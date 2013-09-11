@@ -3,7 +3,7 @@ from .game import Game
 from libs import angle
 from libs.websocket import WebSocketHandler
 from logger import logging_on
-from math import atan, cos, pi, sin
+from math import cos, pi, sin
 
 import random
 
@@ -65,7 +65,6 @@ class Player(WebSocketHandler):
             self.ship = self.new_ship(0, 130, pi / 2)
             self.transport.__USERS__.append(self)
 
-
     def connectionLost(self, reason):
         # print "Lost connection:", reason
         if self.game:
@@ -76,7 +75,6 @@ class Player(WebSocketHandler):
         else:
             self.enemy.enemy = None
             self.enemy.transport.loseConnection()
-
 
     def frameReceived(self, frame):
         parts = frame.split(" ")
