@@ -225,18 +225,5 @@ function GAME(DISPLAY){
         obj.lc++;
     };
 
-    check_performance("Game drawing", obj, [
-        "start",
-        "draw",
-        "getPosition",
-        "prepareBuffer",
-        "drawBackground",
-        "drawArea",
-        "drawObjects",
-        "drawMap",
-        "showMap",
-        "prepareContext",
-        "showBuffer"
-    ]);
     return obj;
 };

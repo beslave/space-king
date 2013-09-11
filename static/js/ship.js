@@ -149,20 +149,5 @@ function Ship(kwargs, game){
         else if(!is_on && prev) this.game.notify('left off');
         this.is_left = is_on;
     };
-    check_performance("Ship drawing", obj, [
-        "prepare_context",
-        "rotate_ship",
-        "draw_casing",
-        "draw_window",
-        "draw_turbines",
-        "draw_forward_fires",
-        "draw_reverse_fires",
-        "draw_reverse_turbines",
-        "flush",
-        "forward",
-        "backward",
-        "right",
-        "left"
-    ]);
     return obj;
 };
