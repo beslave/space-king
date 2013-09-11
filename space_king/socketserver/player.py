@@ -20,7 +20,7 @@ class Player(WebSocketHandler):
             y=y,
             angle=angle,
             rotation=pi / 2 - angle,
-            radius=64,
+            radius=48,
             color=random.choice(["#C95", "#777", "#669"]),
             light_color=random.choice(["#F00", "#0F0", "#00F", "#FF0", "#F0F", "#0FF"]),
             turbine_color=random.choice(["#555", "#446", "#644", "#464"]),
@@ -44,7 +44,7 @@ class Player(WebSocketHandler):
     def __getattr__(self, attr):
         if 'ship' in self.__dict__ and attr in self.__dict__['ship']:
             return self.__dict__['ship'][attr]
-        raise AttributeError
+        return super(Player, self).__getattr__(attr)
 
     def __setattr__(self, attr, value):
         if 'ship' in self.__dict__ and attr in self.__dict__['ship']:
@@ -138,3 +138,7 @@ class Player(WebSocketHandler):
     @property
     def q(self):
         return angle(self.vy, self.vx)
+
+    @property
+    def path_length(self):
+        return (self.x ** 2 + self.y ** 2) ** 0.5

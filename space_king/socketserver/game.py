@@ -2,7 +2,7 @@
 from libs import angle, div, diff
 from libs.physics.collisions import get_velocities2d
 from logger import logging_on
-from math import atan, cos, pi, sin
+from math import cos, pi, sin
 from space_king import settings
 from twisted.internet import reactor
 
@@ -30,7 +30,7 @@ class Game(object):
     def play(self):
         if self.is_play:
             self.t2 = time.time()
-            self.next_frame()
+            self.is_play = self.next_frame()
             self.t1 = self.t2
             diff1 = diff(self.state1, self.player1.ship)
             diff2 = diff(self.state2, self.player2.ship)
@@ -46,12 +46,12 @@ class Game(object):
     def next_frame(self):
         for player in [self.player1, self.player2]:
             self.move_ship(player)
-            self.fix_positions(player)
             self.change_speed(player)
             self.change_angle(player)
             self.limit_speed(player)
         self.check_distance = False
         self.check_shots()
+        return not self.check_winner()
 
     def change_speed(self, player):
         if player.is_backward:
@@ -73,16 +73,6 @@ class Game(object):
         player.x += player.speed_x * self.dT
         player.y += player.speed_y * self.dT
 
-    def fix_positions(self, player):
-        if player.x > settings.SPACE_RADIUS:
-            player.x = -settings.SPACE_RADIUS
-        if player.x < -settings.SPACE_RADIUS:
-            player.x = settings.SPACE_RADIUS
-        if player.y > settings.SPACE_RADIUS:
-            player.y = -settings.SPACE_RADIUS
-        if player.y < -settings.SPACE_RADIUS:
-            player.y = settings.SPACE_RADIUS
-
     def limit_speed(self, player):
         player.speed = min(player.max_speed, player.speed)
         player.speed = max(-player.max_speed, player.speed)
@@ -103,6 +93,19 @@ class Game(object):
             p1.y = yc + ly * div(p1.y - yc, abs(p1.y - yc))
             p2.y = yc + ly * div(p2.y - yc, abs(p2.y - yc))
             self.check_distance = True
+
+    def check_winner(self):
+        p1_path = self.player1.path_length
+        p2_path = self.player2.path_length
+        if max(p1_path, p2_path) > settings.SPACE_RADIUS:
+            if p1_path <= p2_path:
+                self.player1.ship['win'] = True
+                self.player2.ship['lose'] = True
+            else:
+                self.player2.ship['win'] = True
+                self.player1.ship['lose'] = True
+            return True
+        return False
 
     @property
     def dT(self):

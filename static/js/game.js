@@ -131,7 +131,7 @@ function GAME(DISPLAY){
         this.bcontext.strokeStyle = "#F00";
         this.bcontext.lineWidth = this.SPACE_RADIUS * 0.01;
         this.bcontext.beginPath();
-        this.bcontext.arc(0, 0, this.SPACE_RADIUS * 0.90, Math.PI * 2, false);
+        this.bcontext.arc(0, 0, this.SPACE_RADIUS - this.bcontext.lineWidth/2, Math.PI * 2, false);
         this.bcontext.closePath();
         this.bcontext.stroke();
     };
@@ -146,7 +146,7 @@ function GAME(DISPLAY){
         this.mapcontext.strokeStyle = "rgba(255,0,0,0.4)";
         this.mapcontext.lineWidth = this.map_size * 0.02;
         this.mapcontext.beginPath();
-        this.mapcontext.arc(0, 0, this.map_size * 0.45, Math.PI * 2, false);
+        this.mapcontext.arc(0, 0, (this.map_size - this.mapcontext.lineWidth) / 2, Math.PI * 2, false);
         this.mapcontext.closePath();
         this.mapcontext.fill();
         this.mapcontext.stroke();
@@ -202,9 +202,24 @@ function GAME(DISPLAY){
     obj.endDrawing = function(){
         this.context.translate(0, 0);
     };
+    obj.win = function(){
+        this.socket.onmessage = null;
+        this.socket.close();
+        obj.display.showMenu();
+        obj.display.addInfoMessage("You win!");
+    };
+    obj.lose = function(){
+        this.socket.onmessage = null;
+        this.socket.close();
+        obj.display.showMenu();
+        obj.display.addErrorMessage("You lose!");
+    };
     obj.onloop = function(){
-        if(obj.players[0] && obj.players[1]) obj.draw();
-        else obj.wait();
+        if(obj.players[0] && obj.players[1]){
+            obj.draw();
+            if(obj.players[0].win) obj.win();
+            if(obj.players[0].lose) obj.lose();
+        } else obj.wait();
         obj.lc++;
     }
     check_performance("Game drawing", obj, [
