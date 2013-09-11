@@ -16,7 +16,8 @@ var DISPLAY = function(canvas, SPACE_RADIUS){
         "onclick",
         "onloop",
         "onkeyup",
-        "onkeydown"
+        "onkeydown",
+        "onmousemove"
     ];
     obj.resetHandlers = function(handler){
         this.messages = [];

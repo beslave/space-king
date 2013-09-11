@@ -221,7 +221,8 @@ function GAME(DISPLAY){
             if(obj.players[0].lose) obj.lose();
         } else obj.wait();
         obj.lc++;
-    }
+    };
+
     check_performance("Game drawing", obj, [
         "start",
         "draw",

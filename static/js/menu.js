@@ -11,13 +11,18 @@ function MenuItem(title, handler){
     item.onclick = function(){
         this.handler();
     };
-    item.onhover = function(ishover){
-        item.ishover = ishover;
+    item.hover = function(x, y){
+        this.is_hover = this.isIn(x, y);
     };
 
     item.draw = function(context){
-        context.fillStyle = "white";
-        context.strokeStyle = "#CCC";
+        if(this.is_hover){
+            context.fillStyle = "#FFF";
+            context.strokeStyle = "#CFC";
+        } else {
+            context.fillStyle = "#EEE";
+            context.strokeStyle = "#CCC";
+        }
         context.lineWidth = 2;
         context.beginPath();
         context.rect(this.x - this.width / 2, this.y - this.height / 2, this.width, this.height);
@@ -26,7 +31,7 @@ function MenuItem(title, handler){
         context.closePath();
 
         context.font = (this.height - 5) + "px Calibri";
-        context.fillStyle = "black";
+        context.fillStyle = this.is_hover ? "#030" : "#333";
         context.textAlign = "center";
         context.textBaseline = "middle";
         context.fillText(this.title, this.x, this.y);
@@ -73,6 +78,12 @@ function MENU(DISPLAY){
         for(var i = 0; i < obj.items.length; i++){
             if(obj.items[i].isIn(ex, ey)) obj.items[i].onclick();
         }
+    };
+
+    obj.onmousemove = function(e){
+        var ex = e.x - obj.display.canvas.width / 2;
+        var ey = e.y - obj.display.canvas.height / 2;
+        for(var i = 0; i < obj.items.length; i++) obj.items[i].hover(ex, ey);
     };
 
     return obj;
