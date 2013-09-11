@@ -14,7 +14,7 @@ function onResize(e){
     var busyHeight = 0;
     if(!isFull()) busyHeight += menu.offsetHeight + parseInt(menu_style.marginTop) + parseInt(menu_style.marginBottom);
     busyHeight += parseInt(content_style.marginTop) + parseInt(content_style.marginBottom);
-    display.setWidth(CONTENT_BLOCK.scrollWidth);
+    display.setWidth(window.innerWidth);
     display.setHeight(window.innerHeight - busyHeight);
 }
 
@@ -32,6 +32,6 @@ $(document).ready(function(e){
     });
     window.onresize = onResize;
     onResize();
-    display.setHandler(MENU(display));
+    display.showMenu();
     display.loop();
 });

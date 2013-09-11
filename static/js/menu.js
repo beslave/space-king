@@ -49,7 +49,7 @@ function MENU(DISPLAY){
 
     obj.display = DISPLAY;
     obj.items = [
-        MenuItem("Play game", function(){ obj.display.setHandler(GAME(obj.display)); })
+        MenuItem("Play game", function(){ obj.display.playGame(); })
     ];
 
     obj.draw = function(){
@@ -60,6 +60,7 @@ function MENU(DISPLAY){
             obj.items[i].y = obj.display.canvas.height * i / (obj.items.length + 1);
             obj.items[i].draw(obj.display.context);
         }
+        obj.display.context.translate(-obj.display.canvas.width / 2, -obj.display.canvas.height / 2);
     };
 
     obj.onloop = function(){

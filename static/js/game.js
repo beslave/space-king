@@ -1,6 +1,8 @@
 function GAME(DISPLAY){
     var obj = {};
+    obj.display = DISPLAY;
     obj.fon = DISPLAY.fon;
+    obj.lc = 0;     // loop counter
     obj.canvas = DISPLAY.canvas;
     obj.context = DISPLAY.context;
     obj.SPACE_RADIUS = DISPLAY.SPACE_RADIUS || 1000;
@@ -23,7 +25,10 @@ function GAME(DISPLAY){
     obj.socket.onopen = function(){
         log("socket open");
     };
-    obj.socket.onclose = function(event){};
+    obj.socket.onclose = function(event){
+        obj.display.showMenu();
+        obj.display.addErrorMessage("Connection is lost. The game has been interrupted.");
+    };
     obj.socket.onmessage = function(event){
         var data = $.parseJSON(event.data);
         if(obj.GAME_STATE == 0){
@@ -65,6 +70,18 @@ function GAME(DISPLAY){
         }
     };
 
+    obj.wait = function(){
+        this.prepareContext();
+        this.context.font = "30px Calibri";
+        this.context.fillStyle = "yellow";
+        this.context.textAlign = "left";
+        this.context.textBaseline = "middle";
+        var text = "Waiting for second player ";
+        var m = this.context.measureText(text);
+        text += Array(parseInt(this.lc/5 % 25)).join(".");
+        this.context.fillText(text, Math.max(-this.canvas.width/2 + 5, -m.width), 0);
+        this.endDrawing();
+    };
     obj.draw = function(){
         var pos = this.getPosition();
         this.prepareBuffer();
@@ -75,6 +92,7 @@ function GAME(DISPLAY){
         this.showMap(pos.x, pos.y);
         this.prepareContext();
         this.showBuffer(pos.x, pos.y);
+        this.endDrawing();
     };
     obj.getPosition = function(){
         var x = this.players[0].x  + this.SPACE_RADIUS - this.canvas.width / 2;
@@ -179,9 +197,15 @@ function GAME(DISPLAY){
             - this.canvas.width / 2, - this.canvas.height / 2,
             this.canvas.width, this.canvas.height
         );
+        this.context.rotate(this.players[0].rotation);
+    };
+    obj.endDrawing = function(){
+        this.context.translate(0, 0);
     };
     obj.onloop = function(){
         if(obj.players[0] && obj.players[1]) obj.draw();
+        else obj.wait();
+        obj.lc++;
     }
     check_performance("Game drawing", obj, [
         "start",
