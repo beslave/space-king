@@ -1,5 +1,5 @@
 var MESSAGE_SHOWING_TIME = 15 * 1000;
-var FRAME_DELAY = 10;
+var FRAME_DELAY = 30;
 
 
 var DISPLAY = function(canvas, SPACE_RADIUS){

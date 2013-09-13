@@ -1,7 +1,10 @@
 function GAME(DISPLAY){
     var obj = {};
     obj.display = DISPLAY;
-    obj.fon = DISPLAY.fon;
+    obj.bg_image = DISPLAY.fon;
+    obj.bg_canvas = document.createElement("canvas");
+    obj.bg_context = obj.bg_canvas.getContext("2d");
+
     obj.lc = 0;     // loop counter
     obj.canvas = DISPLAY.canvas;
     obj.context = DISPLAY.context;
@@ -46,6 +49,26 @@ function GAME(DISPLAY){
     obj.socket.onerror = function(error){
         log("socket error:", error);
     };
+
+    obj.prepareBackground = function(){
+        this.bg_canvas.width = this.bcanvas.width;
+        this.bg_canvas.height = this.bcanvas.height;
+        var k = Math.max(this.bcanvas.width / this.bg_image.width,
+                         this.bcanvas.height / this.bg_image.height);
+        var f_width = this.bg_image.width * k;
+        var f_height = this.bg_image.height * k;
+        var ix = (f_width - this.bcanvas.width) / (2.0 * k);
+        var iy = (f_height - this.bcanvas.height) / (2.0 * k);
+        var iw = this.bg_canvas.width / k;
+        var ih = this.bg_canvas.height / k;
+        this.bg_context.drawImage(
+            this.bg_image,
+            ix, iy, iw, ih,
+            0, 0, this.bg_canvas.width, this.bg_canvas.height
+        );
+    };
+
+    obj.prepareBackground();
 
     obj.notify = function(command){
         this.socket.send(command);
@@ -113,16 +136,9 @@ function GAME(DISPLAY){
         this.bcontext.translate(this.SPACE_RADIUS, this.SPACE_RADIUS);
     };
     obj.drawBackground = function(x, y){
-        var k = Math.max(this.bcanvas.width / this.fon.width,
-                         this.bcanvas.height / this.fon.height);
-        var f_width = this.fon.width * k;
-        var f_height = this.fon.height * k;
-        var ix = (f_width - this.bcanvas.width) / (2.0 * k) + x / k;
-        var iy = (f_height - this.bcanvas.height) / (2.0 * k) + y / k;
-        var iw = this.canvas.width / k;
-        var ih = this.canvas.height / k;
         this.bcontext.drawImage(
-            this.fon, ix, iy, iw, ih,
+            this.bg_canvas,
+            x, y, this.canvas.width, this.canvas.height,
             x - this.bcanvas.width / 2, y - this.bcanvas.height / 2,
             this.canvas.width, this.canvas.height
         );
