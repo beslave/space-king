@@ -1,4 +1,4 @@
-var MESSAGE_SHOWING_TIME = 15 * 1000;
+var MESSAGE_SHOWING_TIME = 5 * 1000;
 var FRAME_DELAY = 30;
 
 
@@ -34,7 +34,8 @@ var DISPLAY = function(canvas, SPACE_RADIUS){
         this.handler = handler;
     };
     obj.playGame = function(){
-        this.resetHandlers(GAME(this));
+        if(this.fon.complete) this.resetHandlers(GAME(this));
+        else this.addWarningMessage("Wait! Not all data are loaded!");
     };
     obj.showMenu = function(){
         this.resetHandlers(MENU(this));

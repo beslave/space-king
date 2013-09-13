@@ -21,8 +21,9 @@ function Message(msg, type){
         }
         context.lineWidth = 1;
         context.font = this.font;
-        context.fillText(this.msg, x, y);
-        context.strokeText(this.msg, x, y);
+        var msg = new Date(this.time).toTimeString() + ": " + this.msg;
+        context.fillText(msg, x, y);
+        context.strokeText(msg, x, y);
     }
     return obj;
 }

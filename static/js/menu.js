@@ -54,7 +54,9 @@ function MENU(DISPLAY){
 
     obj.display = DISPLAY;
     obj.items = [
-        MenuItem("Play game", function(){ obj.display.playGame(); })
+        MenuItem("Play game", function(){
+            obj.display.playGame(); 
+        }),
     ];
 
     obj.draw = function(){
