@@ -1,0 +1,6 @@
+# coding: utf-8
+
+SECRET_KEY = "
+
+VK_API_SECRET = ""
+VK_APP_ID = ""

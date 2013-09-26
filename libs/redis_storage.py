@@ -1,4 +1,5 @@
 # coding: utf-8
+from functools import wraps
 from redis import ConnectionPool, Redis
 from space_king import settings
 
@@ -124,15 +125,18 @@ _zaggregate
 """
 
 
+def patched_method(old):
+    @wraps(old)
+    def new_method(self, key, *a, **k):
+        key = prepare_key(key)
+        return old(self, key, *a, **k)
+    return new_method
+
+
 def prepare_methods_with_key(cls):
     for method in redis_methods_with_key:
         old = getattr(cls, method)
-
-        def new_method(self, key, *a, **k):
-            key = prepare_key(key)
-            return old(self, key, *a, **k)
-
-        setattr(cls, method, new_method)
+        setattr(cls, method, patched_method(old))
     return cls
 
 
@@ -145,4 +149,4 @@ class LocalRedis(Redis):
 pool_db0 = ConnectionPool(db=0)
 pool_db1 = ConnectionPool(db=1)
 db0 = LocalRedis(connection_pool=pool_db0)
-db0 = LocalRedis(connection_pool=pool_db1)
+db1 = LocalRedis(connection_pool=pool_db1)
