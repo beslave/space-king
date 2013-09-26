@@ -1,0 +1,11 @@
+{% extends "layout/layout.html" %}
+
+{% block content %}
+    <script type="text/javascript">
+        var SOCKET_URL = "{{ socket_url }}";
+        var SPACE_RADIUS = {{ settings.SPACE_RADIUS }};
+    </script>
+    {% include "game_canvas.html" %}
+    {% block game_content %}
+    {% endblock %}
+{% endblock %}
