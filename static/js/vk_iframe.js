@@ -10,4 +10,4 @@ VK.init(function() {
     });
 }, function() { 
     console.log("fail");
-}, '5.2'); 
+}, '5.2');

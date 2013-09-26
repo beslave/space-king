@@ -1,2 +1,4 @@
 flask==0.10
+hiredis==0.1.1
+redis==2.8.0
 twisted==13.1.0
