@@ -140,3 +140,9 @@ def prepare_methods_with_key(cls):
 class LocalRedis(Redis):
 
     pass
+
+
+pool_db0 = ConnectionPool(db=0)
+pool_db1 = ConnectionPool(db=1)
+db0 = LocalRedis(connection_pool=pool_db0)
+db0 = LocalRedis(connection_pool=pool_db1)
