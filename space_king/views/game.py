@@ -16,11 +16,16 @@ def socket_url():
 
 @app.route("/")
 def index():
+    user_pk = session.get("user_pk")
+    user_info = {}
+    if user_pk:
+        user = User(pk=user_pk)
+        user_info = user.short_info
     return render_template(
         "index.html",
         socket_url=socket_url(),
         settings=settings,
-        uinfo={}
+        uinfo=user_info
     )
 
 
@@ -47,11 +52,9 @@ def vk_iframe():
             abort(403)
     else:
         user = User(pk=user_pk)
-    user_fields = ["first_name", "last_name", "avatar", "sex", "country", "city", "last_update"]
-    info = {attr: getattr(user, attr) for attr in user_fields}
     return render_template(
         "vk_iframe.html",
         socket_url=socket_url(),
         settings=settings,
-        uinfo=info
+        uinfo=user.short_info
     )

@@ -11,9 +11,37 @@ class User(object):
         super(User, self).__setattr__("pk", pk)
         super(User, self).__setattr__("__info__", db1.hgetall(self.db_key) or {})
 
+
+    @property
+    def short_info(self):
+        return {field: getattr(self, field) for field in [
+            "fio",
+            "sex",
+            "avatar",
+            "battles",
+            "wins",
+            "defeats"
+        ]}
+
     @property
     def db_key(self):
         return "user::{}".format(self.pk)
+
+    @property
+    def fio(self):
+        return "{} {}".format(self.last_name, self.first_name)
+
+    @property
+    def battles(self):
+        return int(self.__info__.get("battles", 0))
+
+    @property
+    def wins(self):
+        return int(self.__info__.get("wins", 0))
+
+    @property
+    def defeats(self):
+        return int(self.__info__.get("defeats", 0))
 
     def __setattr__(self, attr, value):
         self.__info__[attr] = value
@@ -21,6 +49,9 @@ class User(object):
 
     def __getattr__(self, attr):
         return self.__info__.get(attr)
+
+    def incr(self, attr, by=1):
+        db1.hincrby(self.db_key, attr, by)
 
 
 def get_user_by_service(service, service_user_id):

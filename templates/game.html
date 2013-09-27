@@ -5,13 +5,9 @@
         var SOCKET_URL = "{{ socket_url }}";
         var SPACE_RADIUS = {{ settings.SPACE_RADIUS }};
         var USER_INFO = {
-            first_name: {% if uinfo.first_name %} "{{ uinfo.first_name }}" {% else %} null {% endif %},
-            last_name: {% if uinfo.last_name %} "{{ uinfo.last_name }}" {% else %} null {% endif %},
-            avatar: {% if uinfo.avatar %} "{{ uinfo.avatar }}" {% else %} null {% endif %},
-            sex: {% if uinfo.sex %} "{{ uinfo.sex }}" {% else %} null {% endif %},
-            country: {% if uinfo.country %} "{{ uinfo.country }}" {% else %} null {% endif %},
-            city: {% if uinfo.city %} "{{ uinfo.city }}" {% else %} null {% endif %},
-            last_update: {% if uinfo.last_update %} {{ uinfo.last_update }} {% else %} 0 {% endif %}
+            {% for field, value in uinfo.items() %}
+                {{ field }}: "{{ value }}"{% if not loop.last %},{% endif %}
+            {% endfor %}
         };
     </script>
     {% include "game_canvas.html" %}
