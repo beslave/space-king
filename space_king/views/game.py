@@ -1,8 +1,8 @@
 # coding: utf-8
 from flask import abort, request, render_template, session
 from hashlib import md5
-from libs.redis_storage import db1
 from space_king import app, settings
+from space_king.models.user import add_service_to_user, get_user_by_service, User
 
 import random
 
@@ -26,11 +26,11 @@ def index():
 
 @app.route("/vk-iframe")
 def vk_iframe():
-    user_id = session.get("user_id")
-    if user_id is None:
+    user_pk = session.get("user_pk")
+    if user_pk is None:
         # check auth_key
-        auth_key = request.args.get("auth_key")
-        viewer_id = request.args.get("viewer_id")
+        auth_key = request.args.get("auth_key", "")
+        viewer_id = request.args.get("viewer_id", "")
 
         vk_hash = md5("_".join([
             settings.VK_APP_ID,
@@ -38,21 +38,17 @@ def vk_iframe():
             settings.VK_API_SECRET
         ])).hexdigest()
         if vk_hash == auth_key:
-            user_id_vk = request.args["user_id"]
-            user_id = db1.get("vkontakte_user_id::{}".format(user_id_vk))
-            if user_id is None:
-                user_id = db1.incr("new_user_id")
-                db1.set("vkontakte_user_id::{}".format(user_id_vk), user_id)
-                db1.hmset("user::{}".format(user_id), {
-                    "id": user_id,
-                    "id_vk": user_id_vk
-                })
-            session["user_id"] = user_id
+            user = get_user_by_service("vkontakte", request.args.get("viewer_id"))
+            if user is None:
+                user = User()
+                add_service_to_user("vkontakte", request.args.get("viewer_id"), user.pk)
+            session["user_pk"] = user.pk
         else:
             abort(403)
+    else:
+        user = User(pk=user_pk)
     user_fields = ["first_name", "last_name", "avatar", "sex", "country", "city", "last_update"]
-    fields_values = db1.hmget("user::{}".format(user_id), user_fields)
-    info = dict(zip(user_fields, fields_values))
+    info = {attr: getattr(user, attr) for attr in user_fields}
     return render_template(
         "vk_iframe.html",
         socket_url=socket_url(),
