@@ -5,6 +5,10 @@ from libs.websocket import WebSocketHandler
 from logger import logging_on
 from math import pi
 
+from flask.sessions import SecureCookieSessionInterface, total_seconds
+from space_king import app
+from space_king.models.user import User
+
 
 @logging_on
 class Player(WebSocketHandler):
@@ -25,6 +29,16 @@ class Player(WebSocketHandler):
             return super(Player, self).__setattr__(attr, value)
 
     def connectionMade(self):
+        s = SecureCookieSessionInterface()
+        signing_serializer = s.get_signing_serializer(app)
+        sessionid = self.transport._request.getCookie("session")
+        session = signing_serializer.loads(
+            sessionid,
+            max_age=total_seconds(app.permanent_session_lifetime)
+        )
+        user_pk = session.get("user_pk")
+        self.user = User(pk=user_pk)
+
         self.game = None
         if self.transport.__USERS__:
             self.enemy = self.transport.__USERS__.pop()

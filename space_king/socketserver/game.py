@@ -26,6 +26,7 @@ class Game(object):
         for p1, p2 in zip([player1, player2], [player2, player1]):
             p1.transport.write(json.dumps(p1.ship.to_dict()))
             p1.transport.write(json.dumps(p2.ship.to_dict()))
+            p1.transport.write(json.dumps(p2.user.__info__))
 
     def play(self):
         if self.is_play:

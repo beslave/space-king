@@ -41,6 +41,10 @@ function GAME(DISPLAY){
             obj.players[1] = Ship(data, obj);
             obj.GAME_STATE = 2;
         } else if(obj.GAME_STATE == 2){
+            obj.players[0].user_info = USER_INFO;
+            obj.players[1].user_info = data
+            obj.GAME_STATE = 3;
+        } else if(obj.GAME_STATE == 3){
             for(var i=0; i < data.length; i++){
                 for(var key in data[i]) obj.players[i][key] = data[i][key];
             }
@@ -233,7 +237,7 @@ function GAME(DISPLAY){
         obj.display.addErrorMessage("You lose!");
     };
     obj.onloop = function(){
-        if(obj.players[0] && obj.players[1]){
+        if(obj.GAME_STATE > 3){
             obj.draw();
             if(obj.players[0].win) obj.win();
             if(obj.players[0].lose) obj.lose();
