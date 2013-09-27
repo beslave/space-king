@@ -1,6 +1,9 @@
 # coding: utf-8
 from math import atan, copysign, pi
+
 import os
+import random
+import string
 
 
 PROJECT_DIR = os.path.join(
@@ -37,3 +40,15 @@ def diff(dict1, dict2):
         if dict1.get(key) != value:
             dif[key] = value
     return dif
+
+
+def random_string(size_min=6, size_max=None, pretty=False):
+    size_max = max(size_min, size_max)
+    chars = "".join([
+        string.ascii_lowercase,
+        string.ascii_uppercase,
+        string.digits,
+        "" if pretty else "_- */`!@#$%^&()"
+    ])
+    size = random.randint(size_min, size_max)
+    return "".join(random.choice(chars) for x in xrange(size))
