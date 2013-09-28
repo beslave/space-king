@@ -28,8 +28,10 @@ class Game(object):
             p1.transport.write(json.dumps(p2.ship.to_dict()))
             p1.transport.write(json.dumps(p1.user.short_info if p1.user else {}))
             p1.transport.write(json.dumps(p2.user.short_info if p2.user else {}))
-        self.player1.user.incr("battles")
-        self.player2.user.incr("battles")
+        if self.player1.user:
+            self.player1.user.incr("battles")
+        if self.player2.user:
+            self.player2.user.incr("battles")
 
     def play(self):
         if self.is_play:

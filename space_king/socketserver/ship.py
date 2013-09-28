@@ -2,6 +2,7 @@
 from libs import angle
 from logger import logging_on
 from math import cos, pi, sin
+from space_king import settings
 
 import random
 
@@ -37,9 +38,9 @@ class Ship(object):
 
     def to_dict(self):
         return dict(
-            m=int(self.weight),
-            x=int(self.x),
-            y=int(self.y),
+            m=round(self.weight, settings.PIXELS_ACCURACY),
+            x=round(self.x, settings.PIXELS_ACCURACY),
+            y=round(self.y, settings.PIXELS_ACCURACY),
             angle=round(self.angle, 2),
             rotation=round(self.rotation, 2),
             radius=int(self.radius),

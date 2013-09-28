@@ -1,5 +1,5 @@
 var MESSAGE_SHOWING_TIME = 5 * 1000;
-var FRAME_DELAY = 50;
+var FRAME_DELAY = 10;
 
 
 var DISPLAY = function(SPACE_RADIUS){

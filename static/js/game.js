@@ -59,7 +59,9 @@ function preparePlayerPreview(player, position){
             stat_part_x += mt.width;
         }
     }
-    player.preview.avatar.src = player.user_info.avatar;
+    if(player.user_info.avatar){
+        player.preview.avatar.src = player.user_info.avatar;
+    }
 }
 
 function GAME(DISPLAY){
@@ -71,6 +73,7 @@ function GAME(DISPLAY){
 
     obj.lc = 0;     // loop counter
     obj.SPACE_RADIUS = DISPLAY.SPACE_RADIUS || 1000;
+    obj.pad = 5;
 
     // 0 - SELF SHIP PARAMS LOADING
     // 1 - OTHER OBJECTS LOADING
@@ -171,7 +174,11 @@ function GAME(DISPLAY){
     };
 
     obj.wait = function(){
-        this.prepareContext();
+        this.display.buffer.width = this.display.buffer.width;
+        this.display.bcontext.translate(
+            this.display.buffer.width / 2,
+            this.display.buffer.height / 2
+        );
         this.display.bcontext.font = "30px Calibri";
         this.display.bcontext.fillStyle = "yellow";
         this.display.bcontext.textAlign = "left";
@@ -184,125 +191,114 @@ function GAME(DISPLAY){
             Math.max(-this.display.buffer.width/2 + 5, -m.width),
             0
         );
+        this.display.bcontext.translate(
+            -this.display.buffer.width / 2,
+            -this.display.buffer.height / 2
+        );
         this.display.flip();
     };
     obj.draw = function(){
         var pos = this.getPosition();
-        console.log(pos.x, pos.y);
-        this.prepareBuffer();
         this.drawBackground(pos.x, pos.y);
 
-        this.display.bcontext.rotate(-this.players[0].rotation);
+        // this.display.bcontext.translate(
+        //     this.display.buffer.width / 2,
+        //     this.display.buffer.height / 2
+        // );
+        // this.display.bcontext.rotate(-this.players[0].rotation);
+        // this.display.bcontext.translate(
+        //     -this.display.buffer.width / 2,
+        //     -this.display.buffer.height / 2
+        // );
         this.drawObjects(pos.x, pos.y);            
-        // this.drawMap();
-        // this.showMap(pos.x, pos.y);
-        // this.prepareContext();
-        // this.showBuffer(pos.x, pos.y);
-        // this.drawUserPreviews();
-        this.display.bcontext.rotate(this.players[0].rotation);
+        this.drawMap(this.display.bcontext);
+        this.drawUserPreviews(this.display.bcontext);
+        // this.display.bcontext.rotate(this.players[0].rotation);
         this.display.flip();
     };
     obj.getPosition = function(){
-        var x = this.players[0].x  + this.SPACE_RADIUS - this.display.buffer.width / 2;
-        var y = this.players[0].y  + this.SPACE_RADIUS - this.display.buffer.height / 2;
-        if(x < 0) x = 0;
-        if(x > this.SPACE_RADIUS * 2 - this.display.buffer.width)
-            x = this.SPACE_RADIUS * 2 - this.display.buffer.width;
-        if(y < 0) y = 0;
-        if(y > this.SPACE_RADIUS * 2 - this.display.buffer.height)
-            y = this.SPACE_RADIUS * 2 - this.display.buffer.height;
+        var x = this.players[0].x;
+        var y = this.players[0].y;
+        if(x < -this.SPACE_RADIUS + this.display.buffer.width / 2)
+            x = -this.SPACE_RADIUS + this.display.buffer.width / 2;
+        if(x > this.SPACE_RADIUS - this.display.buffer.width / 2)
+            x = this.SPACE_RADIUS - this.display.buffer.width / 2;
+        if(y < -this.SPACE_RADIUS + this.display.buffer.height / 2)
+            y = -this.SPACE_RADIUS + this.display.buffer.height / 2;
+        if(y > this.SPACE_RADIUS - this.display.buffer.height / 2)
+            y = this.SPACE_RADIUS - this.display.buffer.height / 2;
         return {
             x: x,
             y: y
         };
     };
-    obj.prepareBuffer = function(){
-        this.display.buffer.width = this.display.buffer.width;
-        this.display.bcontext.translate(
-            this.display.buffer.width / 2,
-            this.display.buffer.height / 2
-        );
-    };
     obj.drawBackground = function(x, y){
         var w = this.display.buffer.width, h = this.display.buffer.height;
-        this.display.bcontext.drawImage(this.bg_canvas, x, y, w, h, -w / 2, -h / 2,  w, h);
+        this.display.bcontext.drawImage(this.bg_canvas,
+            x - w / 2 + this.SPACE_RADIUS, y - h / 2 + this.SPACE_RADIUS, w, h,
+            0, 0,  w, h
+        );
     };
     obj.drawObjects = function(x, y){
-        this.display.bcontext.translate(0, 0);
-        for(var i = 0; i < 2; i++) this.players[i].draw(this.display.bcontext, x, y);
+        for(var i = 0; i < this.players.length; i++) this.players[i].draw(
+            this.display.bcontext,
+            this.players[i].x - x + this.display.buffer.width / 2,
+            this.players[i].y - y + this.display.buffer.height / 2
+        );
     };
-    obj.drawMap = function(){
-        this.mapcanvas.width = this.map_size;
-        this.mapcanvas.height = this.map_size;
-        this.mapcontext.translate(this.map_size/2, this.map_size/2);
-        this.mapcontext.fillStyle = "rgba(200,224,127,0.4)";
-        this.mapcontext.strokeStyle = "rgba(255,0,0,0.4)";
-        this.mapcontext.lineWidth = this.map_size * 0.02;
-        this.mapcontext.beginPath();
-        this.mapcontext.arc(0, 0, (this.map_size - this.mapcontext.lineWidth) / 2, Math.PI * 2, false);
-        this.mapcontext.closePath();
-        this.mapcontext.fill();
-        this.mapcontext.stroke();
-        this.mapcontext.lineWidth = this.map_size * 0.03;
+    obj.drawMap = function(context){
+        var mx = this.display.buffer.width - this.map_size / 2 - this.pad;
+        var my = this.display.buffer.height - this.map_size / 2 - this.pad;
+        context.translate(mx, my);
+
+        // Draw area
+        context.fillStyle = "rgba(200,224,127,0.4)";
+        context.strokeStyle = "rgba(255,0,0,0.4)";
+        context.lineWidth = this.map_size * 0.02;
+        context.beginPath();
+        context.arc(0, 0, (this.map_size - context.lineWidth) / 2, Math.PI * 2, false);
+        context.closePath();
+        context.fill();
+        context.stroke();
+
+        // Draw ships
+        context.lineWidth = this.map_size * 0.03;
+        // Style for first ship
+        context.fillStyle = "rgba(255,255,127,0.5)";
+        context.strokeStyle = "rgba(196,255,63,0.3)";
         for(var i = 0; i < 2; i++){
-            if(i == 0){
-                this.mapcontext.fillStyle = "rgba(255,255,127,0.5)";
-                this.mapcontext.strokeStyle = "rgba(196,255,63,0.3)";
-            }
-            else{
-                this.mapcontext.fillStyle = "rgba(255,127,127,0.5)";
-                this.mapcontext.strokeStyle = "rgba(255,127,63,0.3)";
-            }
-            this.mapcontext.beginPath();
-            this.mapcontext.arc(
-                this.players[i].x * this.map_size / this.bcanvas.width,
-                this.players[i].y * this.map_size / this.bcanvas.height,
+            context.beginPath();
+            context.arc(
+                this.players[i].x * this.map_size / this.SPACE_RADIUS * 0.5,
+                this.players[i].y * this.map_size / this.SPACE_RADIUS * 0.5,
                 this.map_size * this.players[i].radius / this.SPACE_RADIUS * 0.5,
                 Math.PI * 2, false);
-            this.mapcontext.closePath();
-            this.mapcontext.fill();
-            this.mapcontext.stroke();
+            context.closePath();
+            context.fill();
+            context.stroke();
+
+            // Style for other ships
+            context.fillStyle = "rgba(255,127,127,0.5)";
+            context.strokeStyle = "rgba(255,127,63,0.3)";
         }
+        context.translate(-mx, -my);
     };
-    obj.showMap = function(x, y){
-        this.bcontext.translate(x, y);
-        var mx = this.canvas.width - this.map_size - this.bcanvas.width / 2;
-        var my = this.canvas.height - this.map_size - this.bcanvas.height / 2;
-        if(this.players[0].rotation != 0)
-            mx -= this.canvas.width - this.map_size;
-        if(this.players[0].rotation != 0)
-            my -= this.canvas.height - this.map_size;
-        this.bcontext.drawImage(
-            this.mapcanvas,
-            0, 0, this.map_size, this.map_size,
-            mx, my, this.map_size, this.map_size
-        );
-    };
-    obj.prepareContext = function(){
-        this.display.buffer.width = this.display.buffer.width;
-        this.display.bcontext.translate(
-            this.display.buffer.width / 2,
-            this.display.buffer.height / 2
-        );
-    };
-    obj.drawUserPreviews = function(){
-        var pad = 5;
-        this.context.drawImage(
+    obj.drawUserPreviews = function(context){
+        context.drawImage(
             this.players[0].preview.canvas,
             0, 0,
             this.players[0].preview.canvas.width,
             this.players[0].preview.canvas.height,
-            pad - this.canvas.width / 2, pad - this.canvas.height / 2,
+            this.pad, this.pad,
             this.players[0].preview.canvas.width,
             this.players[0].preview.canvas.height
         );
-        this.context.drawImage(
+        context.drawImage(
             this.players[1].preview.canvas,
             0, 0,
             this.players[1].preview.canvas.width,
             this.players[1].preview.canvas.height,
-            this.canvas.width / 2 - this.players[1].preview.canvas.width - pad,
-            pad - this.canvas.height / 2,
+            this.display.buffer.width - this.players[1].preview.canvas.width - this.pad, this.pad,
             this.players[1].preview.canvas.width,
             this.players[1].preview.canvas.height
         );
