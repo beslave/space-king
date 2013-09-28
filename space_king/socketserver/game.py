@@ -107,13 +107,17 @@ class Game(object):
             if p1_path <= p2_path:
                 self.player1.ship.win = True
                 self.player2.ship.lose = True
-                self.player1.user.incr("wins")
-                self.player2.user.incr("defeats")
+                if self.player1.user:
+                    self.player1.user.incr("wins")
+                if self.player2.user:
+                    self.player2.user.incr("defeats")
             else:
                 self.player2.ship.win = True
                 self.player1.ship.lose = True
-                self.player2.user.incr("wins")
-                self.player1.user.incr("defeats")
+                if self.player2.user:
+                    self.player2.user.incr("wins")
+                if self.player1.user:
+                    self.player1.user.incr("defeats")
             return True
         return False
 
