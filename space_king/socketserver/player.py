@@ -37,7 +37,7 @@ class Player(WebSocketHandler):
             max_age=total_seconds(app.permanent_session_lifetime)
         )
         user_pk = session.get("user_pk")
-        self.user = User(pk=user_pk)
+        self.user = User(pk=user_pk) if user_pk else None
 
         self.game = None
         if self.transport.__USERS__:

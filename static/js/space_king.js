@@ -24,7 +24,7 @@ function log(msg){
 
 $(document).ready(function(e){
     if(isFull()) document.getElementById("menuID").style.display = "none";
-    display = DISPLAY(document.getElementById("gameID"), SPACE_RADIUS);
+    display = DISPLAY(SPACE_RADIUS);
     $('li, a').hover(function(e){
         $(this).addClass('hover');
     }, function(e){

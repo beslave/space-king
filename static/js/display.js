@@ -1,13 +1,9 @@
 var MESSAGE_SHOWING_TIME = 5 * 1000;
-var FRAME_DELAY = 30;
+var FRAME_DELAY = 50;
 
 
-var DISPLAY = function(canvas, SPACE_RADIUS){
+var DISPLAY = function(SPACE_RADIUS){
     var obj = {};
-    obj.width = 0;
-    obj.height = 0;
-    obj.canvas = canvas;
-    obj.context = canvas.getContext('2d');
     obj.fon = new Image();
     obj.fon.src = "/static/css/images/main_background.jpeg";
     obj.messages = [];
@@ -33,6 +29,15 @@ var DISPLAY = function(canvas, SPACE_RADIUS){
         }
         this.handler = handler;
     };
+
+    obj.init = function(){
+        this.canvas = document.getElementById("gameID");
+        this.context = this.canvas.getContext("2d");
+        this.buffer = document.getElementById("gameBuffer");
+        this.bcontext = this.buffer.getContext("2d");
+    };
+    obj.init();
+
     obj.playGame = function(){
         if(this.fon.complete) this.resetHandlers(GAME(this));
         else this.addWarningMessage("Wait! Not all data are loaded!");
@@ -43,11 +48,11 @@ var DISPLAY = function(canvas, SPACE_RADIUS){
 
     obj.setWidth = function(width){
         this.canvas.width = width;
-        this.canvas.style.width = width;
+        this.buffer.width = width;
     };
     obj.setHeight = function(height){
         this.canvas.height = height;
-        this.canvas.style.height = height;
+        this.buffer.height = height;
     };
     obj.loop = function(){
         if(this.onloop) this.onloop();
@@ -74,6 +79,12 @@ var DISPLAY = function(canvas, SPACE_RADIUS){
     };
     obj.addInfoMessage = function(msg){
         this.messages.push(Message(msg, "info"));
+    };
+    obj.flip = function(){
+        var tid = this.canvas.id;
+        this.canvas.id = this.buffer.id;
+        this.buffer.id = tid;
+        this.init();
     };
     return obj;
 };

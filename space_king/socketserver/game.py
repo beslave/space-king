@@ -26,8 +26,8 @@ class Game(object):
         for p1, p2 in zip([player1, player2], [player2, player1]):
             p1.transport.write(json.dumps(p1.ship.to_dict()))
             p1.transport.write(json.dumps(p2.ship.to_dict()))
-            p1.transport.write(json.dumps(p1.user.short_info))
-            p1.transport.write(json.dumps(p2.user.short_info))
+            p1.transport.write(json.dumps(p1.user.short_info if p1.user else {}))
+            p1.transport.write(json.dumps(p2.user.short_info if p2.user else {}))
         self.player1.user.incr("battles")
         self.player2.user.incr("battles")
 
@@ -107,13 +107,17 @@ class Game(object):
             if p1_path <= p2_path:
                 self.player1.ship.win = True
                 self.player2.ship.lose = True
-                self.player1.user.incr("wins")
-                self.player2.user.incr("defeats")
+                if self.player1.user:
+                    self.player1.user.incr("wins")
+                if self.player2.user:
+                    self.player2.user.incr("defeats")
             else:
                 self.player2.ship.win = True
                 self.player1.ship.lose = True
-                self.player2.user.incr("wins")
-                self.player1.user.incr("defeats")
+                if self.player2.user:
+                    self.player2.user.incr("wins")
+                if self.player1.user:
+                    self.player1.user.incr("defeats")
             return True
         return False
 

@@ -15,7 +15,9 @@ function Ship(kwargs, game){
     obj.turbine_height = 0.95 * obj.radius;
     obj.draw_counter = 0;
     obj.fire_bottoms = [1.7, 1.7, 1.85];
-    obj.draw = function(parent_context){
+    obj.draw = function(parent_context, ox, oy){
+        this.ox = ox;
+        this.oy = oy;
         this.prepare_context();
         this.rotate_ship();
         this.draw_casing();
@@ -24,7 +26,7 @@ function Ship(kwargs, game){
         if(this.is_forward) this.draw_forward_fires();
         if(this.is_backward) this.draw_reverse_fires();
         this.draw_reverse_turbines();
-        this.flush(parent_context);
+        this.flush(parent_context, ox, oy);
         
     };
     obj.prepare_context = function(){
@@ -121,9 +123,13 @@ function Ship(kwargs, game){
             this.context.stroke();
         }
     };
-    obj.flush = function(context){
+    obj.flush = function(context, ox, oy){
         this.draw_counter++;
-        context.drawImage(this.canvas, this.x - this.canvas.width / 2, this.y - this.canvas.height / 2);
+        context.drawImage(
+            this.canvas,
+            this.x - this.canvas.width / 2 - ox,
+            this.y - this.canvas.height / 2 - oy
+        );
     };
     obj.forward = function(is_on){
         var prev = this.is_forward;
