@@ -20,7 +20,8 @@ class User(object):
             "avatar",
             "battles",
             "wins",
-            "defeats"
+            "defeats",
+            "last_update"
         ]}
 
     @property
@@ -42,6 +43,10 @@ class User(object):
     @property
     def defeats(self):
         return int(self.__info__.get("defeats", 0))
+
+    @property
+    def last_update(self):
+        return int(self.__info__.get("last_update", 0))
 
     def __setattr__(self, attr, value):
         self.__info__[attr] = value
