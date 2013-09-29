@@ -22,7 +22,7 @@ function log(msg){
 }
 
 $(document).ready(function(e){
-    if(isFull()) document.getElementById("menuID").style.display = "none";
+    // if(isFull()) document.getElementById("menuID").style.display = "none";
     display = DISPLAY(SPACE_RADIUS);
     $('li, a').hover(function(e){
         $(this).addClass('hover');
