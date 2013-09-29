@@ -2,17 +2,16 @@ var display = null;
 
 
 function isFull(){
-    return true;
     return window.self !== window.top;
 }
 
 function onResize(e){
     var CONTENT_BLOCK = document.getElementById("contentID");
-    var menu = document.getElementById("menuID");
-    var menu_style = menu.current_style || window.getComputedStyle(menu);
+    // var menu = document.getElementById("menuID");
+    // var menu_style = menu.current_style || window.getComputedStyle(menu);
     var content_style = CONTENT_BLOCK.current_style || window.getComputedStyle(CONTENT_BLOCK);
     var busyHeight = 0;
-    if(!isFull()) busyHeight += menu.offsetHeight + parseInt(menu_style.marginTop) + parseInt(menu_style.marginBottom);
+    // if(!isFull()) busyHeight += menu.offsetHeight + parseInt(menu_style.marginTop) + parseInt(menu_style.marginBottom);
     busyHeight += parseInt(content_style.marginTop) + parseInt(content_style.marginBottom);
     display.setWidth(window.innerWidth);
     display.setHeight(window.innerHeight - busyHeight);

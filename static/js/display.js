@@ -1,7 +1,3 @@
-var MESSAGE_SHOWING_TIME = 5 * 1000;
-var FRAME_DELAY = 10;
-
-
 var DISPLAY = function(SPACE_RADIUS){
     var obj = {};
     obj.fon = new Image();
@@ -33,14 +29,14 @@ var DISPLAY = function(SPACE_RADIUS){
     obj.init = function(){
         this.canvas = document.getElementById("gameID");
         this.context = this.canvas.getContext("2d");
-        this.buffer = document.getElementById("gameBuffer");
+        this.buffer = document.getElementById(FLIPPING ? "gameBuffer" : "gameID");
         this.bcontext = this.buffer.getContext("2d");
     };
     obj.init();
 
     obj.playGame = function(){
         if(this.fon.complete) this.resetHandlers(GAME(this));
-        else this.addWarningMessage("Wait! Not all data are loaded!");
+        else this.addWarningMessage(NOT_ALL_DATA_LOADED);
     };
     obj.showMenu = function(){
         this.resetHandlers(MENU(this));
@@ -55,9 +51,13 @@ var DISPLAY = function(SPACE_RADIUS){
         this.buffer.height = height;
     };
     obj.loop = function(){
-        if(this.onloop) this.onloop();
-        this.showMessages();
         setTimeout(function(){ obj.loop(); }, FRAME_DELAY);
+        if(this.onloop && !this.in_work){
+            this.in_work = true;
+            this.onloop();
+            this.in_work = false;
+        }
+        this.showMessages();
     };
     obj.setHandler = function(handler){
         this.resetHandlers(handler);

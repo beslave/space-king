@@ -5,18 +5,18 @@ function preparePlayerPreview(player, position){
     player.preview.avatar.onload = function(e){
         var interval = 7;
         var preview_context = player.preview.canvas.getContext("2d");
-        var fio_font = "24px Calibri";
-        var stat_font = "20px Arial";
+        var fio_font = BASE_FONT;
+        var stat_font = SMALL_FONT;
         var stat_y = 33;
         var fio = player.user_info.fio;
 
-        var separator = [" / ", "white"];
+        var separator = [" / ", TXT_COLOR];
         var stat_data = [
-            [player.user_info.battles, "#FC0"],
+            [player.user_info.battles, INFO_COLOR],
             separator,
-            [player.user_info.wins, "#0F0"],
+            [player.user_info.wins, JOY_COLOR],
             separator,
-            [player.user_info.defeats, "#F00"]
+            [player.user_info.defeats, WAR_COLOR]
         ];
         var stat = "";
         for(var i = 0; i < stat_data.length; i++) stat += stat_data[i][0];
@@ -31,7 +31,7 @@ function preparePlayerPreview(player, position){
         player.preview.canvas.width = Math.max(mfio.width, mstat.width) + player.preview.avatar.width + interval;
 
         preview_context.globalCompositeOperation = "lighter";
-        preview_context.globalAlpha = 0.8;
+        preview_context.globalAlpha = PREVIEW_ALPHA;
 
         var avatar_x = (position == 0 ? 0 : player.preview.canvas.width - player.preview.avatar.width);
         preview_context.drawImage(
@@ -44,7 +44,7 @@ function preparePlayerPreview(player, position){
         preview_context.textBaseline = "top";
 
         preview_context.font = fio_font;
-        preview_context.fillStyle = "yellow";
+        preview_context.fillStyle = BASE_COLOR;
         var fio_x = (position == 0 ? player.preview.avatar.width + interval : 0);
         preview_context.fillText(fio, fio_x, 0);
 
@@ -58,6 +58,7 @@ function preparePlayerPreview(player, position){
             var mt = preview_context.measureText(stat_data[i][0]);
             stat_part_x += mt.width;
         }
+        preview_context.globalAlpha = 1.0;
     }
     if(player.user_info.avatar){
         player.preview.avatar.src = player.user_info.avatar;
@@ -73,7 +74,7 @@ function GAME(DISPLAY){
 
     obj.lc = 0;     // loop counter
     obj.SPACE_RADIUS = DISPLAY.SPACE_RADIUS || 1000;
-    obj.pad = 5;
+    obj.pad = BASE_PADDING;
 
     // 0 - SELF SHIP PARAMS LOADING
     // 1 - OTHER OBJECTS LOADING
@@ -91,7 +92,7 @@ function GAME(DISPLAY){
     };
     obj.socket.onclose = function(event){
         obj.display.showMenu();
-        obj.display.addErrorMessage("Connection is lost. The game has been interrupted.");
+        obj.display.addErrorMessage(CONNECTION_LOST);
     };
     obj.socket.onmessage = function(event){
         var data = $.parseJSON(event.data);
@@ -131,23 +132,21 @@ function GAME(DISPLAY){
         var iy = (f_height - size) / (2.0 * k);
         var iw = this.bg_canvas.width / k;
         var ih = this.bg_canvas.height / k;
-        this.bg_context.translate(this.SPACE_RADIUS, this.SPACE_RADIUS);
-        this.bg_context.rotate(-this.players[0].rotation);
         this.bg_context.drawImage(
             this.bg_image,
             ix, iy, iw, ih,
-            -this.SPACE_RADIUS, -this.SPACE_RADIUS,
-            this.bg_canvas.width, this.bg_canvas.height
+            0, 0, this.bg_canvas.width, this.bg_canvas.height
         );
 
         // Draw area
-        this.bg_context.strokeStyle = "#F00";
+        this.bg_context.strokeStyle = WAR_COLOR;
         this.bg_context.lineWidth = this.SPACE_RADIUS * 0.01;
+        this.bg_context.translate(this.SPACE_RADIUS, this.SPACE_RADIUS);
         this.bg_context.beginPath();
         this.bg_context.arc(0, 0, this.SPACE_RADIUS - this.bg_context.lineWidth/2, Math.PI * 2, false);
         this.bg_context.closePath();
+        this.bg_context.translate(-this.SPACE_RADIUS, -this.SPACE_RADIUS);
         this.bg_context.stroke();
-        this.bg_context.rotate(this.players[0].rotation);
     };
 
     obj.notify = function(command){
@@ -175,15 +174,12 @@ function GAME(DISPLAY){
 
     obj.wait = function(){
         this.display.buffer.width = this.display.buffer.width;
-        this.display.bcontext.translate(
-            this.display.buffer.width / 2,
-            this.display.buffer.height / 2
-        );
-        this.display.bcontext.font = "30px Calibri";
-        this.display.bcontext.fillStyle = "yellow";
+        this.display.bcontext.translate(this.cx, this.cy);
+        this.display.bcontext.font = LARGE_FONT;
+        this.display.bcontext.fillStyle = BASE_COLOR;
         this.display.bcontext.textAlign = "left";
         this.display.bcontext.textBaseline = "middle";
-        var text = "Waiting for second player ";
+        var text = WAIT_PLAYER + " ";
         var m = this.display.bcontext.measureText(text);
         text += Array(parseInt(this.lc/5 % 25)).join(".");
         this.display.bcontext.fillText(
@@ -191,29 +187,26 @@ function GAME(DISPLAY){
             Math.max(-this.display.buffer.width/2 + 5, -m.width),
             0
         );
-        this.display.bcontext.translate(
-            -this.display.buffer.width / 2,
-            -this.display.buffer.height / 2
-        );
+        this.display.bcontext.translate(-this.cx, -this.cy);
         this.display.flip();
     };
     obj.draw = function(){
         var pos = this.getPosition();
-        this.drawBackground(pos.x, pos.y);
 
-        // this.display.bcontext.translate(
-        //     this.display.buffer.width / 2,
-        //     this.display.buffer.height / 2
-        // );
-        // this.display.bcontext.rotate(-this.players[0].rotation);
-        // this.display.bcontext.translate(
-        //     -this.display.buffer.width / 2,
-        //     -this.display.buffer.height / 2
-        // );
-        this.drawObjects(pos.x, pos.y);            
+        this.display.bcontext.translate(this.cx, this.cy);
+        this.display.bcontext.rotate(-this.players[0].rotation);
+        this.display.bcontext.translate(-this.cx, -this.cy);
+
+        this.drawBackground(pos.x, pos.y);
+        this.drawObjects(pos.x, pos.y);
+
+        this.display.bcontext.translate(this.cx, this.cy);
+        this.display.bcontext.rotate(this.players[0].rotation);
+        this.display.bcontext.translate(-this.cx, -this.cy);
+
         this.drawMap(this.display.bcontext);
         this.drawUserPreviews(this.display.bcontext);
-        // this.display.bcontext.rotate(this.players[0].rotation);
+
         this.display.flip();
     };
     obj.getPosition = function(){
@@ -234,22 +227,27 @@ function GAME(DISPLAY){
     };
     obj.drawBackground = function(x, y){
         var w = this.display.buffer.width, h = this.display.buffer.height;
+        this.display.bcontext.globalAlpha = BASE_ALPHA;
         this.display.bcontext.drawImage(this.bg_canvas,
             x - w / 2 + this.SPACE_RADIUS, y - h / 2 + this.SPACE_RADIUS, w, h,
             0, 0,  w, h
         );
+        this.display.bcontext.globalAlpha = 1;
     };
     obj.drawObjects = function(x, y){
-        for(var i = 0; i < this.players.length; i++) this.players[i].draw(
-            this.display.bcontext,
-            this.players[i].x - x + this.display.buffer.width / 2,
-            this.players[i].y - y + this.display.buffer.height / 2
-        );
+        for(var i = 0; i < this.players.length; i++){
+            this.players[i].draw(
+                this.display.bcontext,
+                this.players[i].x - x + this.display.buffer.width / 2,
+                this.players[i].y - y + this.display.buffer.height / 2
+            );
+        }
     };
     obj.drawMap = function(context){
         var mx = this.display.buffer.width - this.map_size / 2 - this.pad;
         var my = this.display.buffer.height - this.map_size / 2 - this.pad;
         context.translate(mx, my);
+        context.rotate(-this.players[0].rotation);
 
         // Draw area
         context.fillStyle = "rgba(200,224,127,0.4)";
@@ -281,6 +279,7 @@ function GAME(DISPLAY){
             context.fillStyle = "rgba(255,127,127,0.5)";
             context.strokeStyle = "rgba(255,127,63,0.3)";
         }
+        context.rotate(this.players[0].rotation);
         context.translate(-mx, -my);
     };
     obj.drawUserPreviews = function(context){
@@ -311,13 +310,15 @@ function GAME(DISPLAY){
     };
     obj.win = function(){
         obj.display.showMenu();
-        obj.display.addInfoMessage("You win!");
+        obj.display.addInfoMessage(YOU_WIN);
     };
     obj.lose = function(){
         obj.display.showMenu();
-        obj.display.addErrorMessage("You lose!");
+        obj.display.addErrorMessage(YOU_LOSE);
     };
     obj.onloop = function(){
+        obj.cx = obj.display.buffer.width / 2;
+        obj.cy = obj.display.buffer.height / 2;
         if(obj.GAME_STATE >= 3){
             obj.draw();
             if(obj.players[0].win) obj.win();

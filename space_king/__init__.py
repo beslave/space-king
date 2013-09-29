@@ -10,5 +10,7 @@ app = Flask(
     template_folder=os.path.join(PROJECT_DIR, "templates"),
     static_folder=os.path.join(PROJECT_DIR, "static")
 )
+
 app.config.from_object("space_king.settings")
+
 from . import views
