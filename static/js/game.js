@@ -115,6 +115,8 @@ function GAME(DISPLAY){
             for(var i=0; i < data.length; i++){
                 for(var key in data[i]) obj.players[i][key] = data[i][key];
             }
+            if(obj.players[0].win) obj.win();
+            if(obj.players[0].lose) obj.lose();
         }
     };
     obj.socket.onerror = function(error){
@@ -320,9 +322,11 @@ function GAME(DISPLAY){
         obj.cx = obj.display.buffer.width / 2;
         obj.cy = obj.display.buffer.height / 2;
         if(obj.GAME_STATE >= 3){
+            if(!obj.already_drawed){
+                obj.display.buffer.width = obj.display.buffer.width;
+                obj.display.canvas.width = obj.display.canvas.width;
+            }
             obj.draw();
-            if(obj.players[0].win) obj.win();
-            if(obj.players[0].lose) obj.lose();
         } else obj.wait();
         obj.lc++;
     };

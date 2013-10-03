@@ -21,7 +21,8 @@ class Game(object):
     LAST_GAME_ID = 0
     __GAMES__ = {}
 
-    def __init__(self):
+    def __init__(self, game_id):
+        self.id = game_id
         self.players = []
         self.is_play = False
 
@@ -30,7 +31,7 @@ class Game(object):
         if Game.LAST_GAME_ID not in Game.__GAMES__ or\
                 Game.__GAMES__[Game.LAST_GAME_ID]:
             Game.LAST_GAME_ID += 1
-            Game.__GAMES__[Game.LAST_GAME_ID] = Game()
+            Game.__GAMES__[Game.LAST_GAME_ID] = Game(Game.LAST_GAME_ID)
         Game.__GAMES__[Game.LAST_GAME_ID].add_player(player)
         return Game.LAST_GAME_ID
 
@@ -49,14 +50,14 @@ class Game(object):
             self.locate_players()
             self.is_play = True
             self.t1 = time.time()
-            for p1, enemies in enemies_data(self.players):
-                p1.send_ship()
-                p1.send_user_info()
+            for p, enemies in enemies_data(self.players):
+                p.send_ship()
+                p.send_user_info()
                 for enemy in enemies:
-                    p1.send_ship(enemy.ship)
-                    p1.send_user_info(enemy.user)
-                p1.incr_battles()
-                p1.in_play()
+                    p.send_ship(enemy.ship.to_dict())
+                    p.send_user_info(enemy.user)
+                p.incr_battles()
+                p.in_play()
             self.play()
         else:
             reactor.callLater(settings.PLAYER_WAITING_TIME, self.check_is_enemy)
@@ -89,6 +90,8 @@ class Game(object):
                 for (p, enemies), (d, enemies_diffs) in x:
                     p.send_changes([d] + list(enemies_diffs))
             reactor.callLater(settings.SYSTEM_DELAY, self.play)
+        else:
+            self.stop()
 
     def next_frame(self):
         for player in self.players:
@@ -152,11 +155,9 @@ class Game(object):
             for p in self.players:
                 is_win = p.path_length < max_path
                 if is_win:
-                    p.ship.win = True
+                    p.win()
                 else:
-                    p.ship.lose = True
-                if p.user:
-                    p.user.incr('wins' if is_win else 'defeats')
+                    p.lose()
             return True
         return False
 

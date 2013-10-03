@@ -19,12 +19,12 @@ class Gamer(Player, WebSocketHandler):
     def connectionMade(self):
         s = SecureCookieSessionInterface()
         signing_serializer = s.get_signing_serializer(app)
-        sessionid = self.transport._request.getCookie("session")
+        sessionid = self.transport._request.getCookie('session')
         session = signing_serializer.loads(
             sessionid,
             max_age=total_seconds(app.permanent_session_lifetime)
         )
-        user_pk = session.get("user_pk")
+        user_pk = session.get('user_pk')
         self.user = User(pk=user_pk) if user_pk else None
 
         self.play()
@@ -39,8 +39,8 @@ class Gamer(Player, WebSocketHandler):
         self.exit()
 
     def send_ship(self, ship=None):
-        ship = self.ship if ship is None else ship
-        self.transport.write(json.dumps(ship.to_dict()))
+        ship = self.ship.to_dict() if ship is None else ship
+        self.transport.write(json.dumps(ship))
 
     def send_user_info(self, user=None):
         user = self.user if user is None else user
@@ -52,14 +52,14 @@ class Gamer(Player, WebSocketHandler):
         self.transport.write(json.dumps(diff))
 
     def frameReceived(self, frame):
-        parts = frame.split(" ")
+        parts = frame.split(' ')
         if len(parts) > 0:
-            command_name = "__command_{}__".format(parts[0])
+            command_name = '__command_{}__'.format(parts[0])
             parts = parts[1:]
             args = []
             kwargs = {}
             for x in parts:
-                eqs = x.split("=")
+                eqs = x.split('=')
                 if len(eqs) == 1:
                     args.append(x)
                 elif len(eqs) == 2:
@@ -70,4 +70,4 @@ class Gamer(Player, WebSocketHandler):
                 try:
                     getattr(self, command_name)(*args, **kwargs)
                 except TypeError:
-                    self.exit("Disallow command!")
+                    self.exit('Disallow command!')

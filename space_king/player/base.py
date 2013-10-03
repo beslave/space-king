@@ -24,6 +24,9 @@ class Player(object):
         else:
             super(Player, self).__setattr__(attr, value)
 
+    def close(self):
+        pass
+
     def play(self):
         self.game_id = Game.enter(self)
 
@@ -45,6 +48,18 @@ class Player(object):
 
     def in_play(self, status=True):
         self.is_play = status
+
+    def win(self):
+        if self.user:
+            self.user.incr('wins')
+        if self.ship:
+            self.ship.win = True
+
+    def lose(self):
+        if self.user:
+            self.user.incr('wins')
+        if self.ship:
+            self.ship.lose = True
 
     @property
     def changes(self):
