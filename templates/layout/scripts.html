@@ -1,7 +1,18 @@
 <script type="text/javascript" src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/message.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/ship.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/game.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/menu.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/display.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/space_king.js') }}"></script>
+<script type="text/javascript"
+    src="{{ url_for('static', filename='js/message.js') }}?v={{ config.VERSION }}">
+</script>
+<script type="text/javascript"
+    src="{{ url_for('static', filename='js/ship.js') }}?v={{ config.VERSION }}">
+</script>
+<script type="text/javascript"
+    src="{{ url_for('static', filename='js/game.js') }}?v={{ config.VERSION }}">
+</script>
+<script type="text/javascript"
+    src="{{ url_for('static', filename='js/menu.js') }}?v={{ config.VERSION }}">
+</script>
+<script type="text/javascript"
+    src="{{ url_for('static', filename='js/display.js') }}?v={{ config.VERSION }}"></script>
+<script type="text/javascript"
+    src="{{ url_for('static', filename='js/space_king.js') }}?v={{ config.VERSION }}">
+</script>

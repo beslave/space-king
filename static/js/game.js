@@ -100,11 +100,11 @@ function GAME(DISPLAY){
             obj.players[0] = Ship(data, obj);
             obj.GAME_STATE++;
         } else if(obj.GAME_STATE == 1){
-            obj.players[1] = Ship(data, obj);
-            obj.GAME_STATE++;
-        } else if(obj.GAME_STATE == 2){
             obj.players[0].user_info = data;
             preparePlayerPreview(obj.players[0], 0);
+            obj.GAME_STATE++;
+        } else if(obj.GAME_STATE == 2){
+            obj.players[1] = Ship(data, obj);
             obj.GAME_STATE++;
         } else if(obj.GAME_STATE == 3){
             obj.players[1].user_info = data;
