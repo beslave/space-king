@@ -46,6 +46,7 @@ class Game(object):
     def add_player(self, player):
         self.players.append(player)
         if self:
+            self.locate_players()
             self.is_play = True
             self.t1 = time.time()
             for p1, enemies in enemies_data(self.players):
@@ -61,6 +62,17 @@ class Game(object):
                 if p1.user:
                     p1.user.incr('battles')
             self.play()
+
+    def locate_players(self):
+        delta_q = pi * 2.0 / len(self.players)
+        start_x = 0
+        start_y = settings.PLAYER_START_RADIUS
+        for i, p in enumerate(self.players):
+            q = delta_q * i
+            p.angle = pi / 2.0 + q
+            p.x = start_x * cos(q) - start_y * sin(q)
+            p.y = start_x * sin(q) + start_y * cos(q)
+            p.rotation = q
 
     def play(self):
         if self.is_play:
