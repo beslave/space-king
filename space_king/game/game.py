@@ -84,7 +84,7 @@ class Game(object):
                 f = lambda o: list(enemies_data(o))
                 x = zip(*map(f, [self.players, diffs]))
                 for (p, enemies), (d, enemies_diffs) in x:
-                    p.transport.write(json.dumps([d] + [enemies_diffs]))
+                    p.transport.write(json.dumps([d] + list(enemies_diffs)))
             reactor.callLater(0.05, self.play)
 
     def next_frame(self):
