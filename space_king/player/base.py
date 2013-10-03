@@ -10,6 +10,7 @@ class Player(object):
         self._state = {}
         self.ship = Ship()
         self.user = None
+        self.is_play = False
         return super(Player, self).__init__(*a, **k)
 
     def __getattr__(self, attr):
@@ -41,6 +42,9 @@ class Player(object):
     def incr_battles(self):
         if self.user:
             self.user.incr('battles')
+
+    def in_play(self, status=True):
+        self.is_play = status
 
     @property
     def changes(self):

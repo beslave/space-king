@@ -56,7 +56,15 @@ class Game(object):
                     p1.send_ship(enemy.ship)
                     p1.send_user_info(enemy.user)
                 p1.incr_battles()
+                p1.in_play()
             self.play()
+        else:
+            reactor.callLater(settings.PLAYER_WAITING_TIME, self.check_is_enemy)
+
+    def check_is_enemy(self):
+        if not self:
+            from space_king.player.bot import Bot
+            self.add_player(Bot())
 
     def locate_players(self):
         delta_q = pi * 2.0 / len(self.players)
@@ -80,7 +88,7 @@ class Game(object):
                 x = zip(*map(f, [self.players, diffs]))
                 for (p, enemies), (d, enemies_diffs) in x:
                     p.send_changes([d] + list(enemies_diffs))
-            reactor.callLater(0.05, self.play)
+            reactor.callLater(settings.SYSTEM_DELAY, self.play)
 
     def next_frame(self):
         for player in self.players:
@@ -167,4 +175,5 @@ class Game(object):
     def stop(self):
         self.is_play = False
         for p in self.players:
+            p.in_play(False)
             p.close()
