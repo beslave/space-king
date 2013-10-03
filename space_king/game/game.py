@@ -6,7 +6,6 @@ from math import cos, pi, sin
 from space_king import settings
 from twisted.internet import reactor
 
-import json
 import time
 
 
@@ -37,8 +36,9 @@ class Game(object):
 
     @staticmethod
     def exit(game_id, user=None):
-        Game.__GAMES__[game_id].stop()
-        del Game.__GAMES__[game_id]
+        if game_id in Game.__GAMES__:
+            Game.__GAMES__[game_id].stop()
+            del Game.__GAMES__[game_id]
 
     def __nonzero__(self):
         return len(self.players) >= 2
@@ -50,17 +50,12 @@ class Game(object):
             self.is_play = True
             self.t1 = time.time()
             for p1, enemies in enemies_data(self.players):
-                p1.transport.write(json.dumps(p1.ship.to_dict()))
-                p1.transport.write(json.dumps(
-                    p1.user.short_info if p1.user else {}
-                ))
+                p1.send_ship()
+                p1.send_user_info()
                 for enemy in enemies:
-                    p1.transport.write(json.dumps(enemy.ship.to_dict()))
-                    p1.transport.write(json.dumps(
-                        enemy.user.short_info if enemy.user else {}
-                    ))
-                if p1.user:
-                    p1.user.incr('battles')
+                    p1.send_ship(enemy.ship)
+                    p1.send_user_info(enemy.user)
+                p1.incr_battles()
             self.play()
 
     def locate_players(self):
@@ -84,7 +79,7 @@ class Game(object):
                 f = lambda o: list(enemies_data(o))
                 x = zip(*map(f, [self.players, diffs]))
                 for (p, enemies), (d, enemies_diffs) in x:
-                    p.transport.write(json.dumps([d] + list(enemies_diffs)))
+                    p.send_changes([d] + list(enemies_diffs))
             reactor.callLater(0.05, self.play)
 
     def next_frame(self):
@@ -171,4 +166,5 @@ class Game(object):
 
     def stop(self):
         self.is_play = False
-        self.players = []
+        for p in self.players:
+            p.close()

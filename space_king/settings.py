@@ -21,7 +21,7 @@ JS = dict(
     WAIT_PLAYER='"Waiting for second player"',
 
     FRAME_DELAY=50,
-    FLIPPING='false',
+    FLIPPING='true',
 
     LARGE_FONT='"30px Calibri"',
     BASE_FONT='"24px Calibri"',

@@ -9,6 +9,7 @@ class Player(object):
     def __init__(self, *a, **k):
         self._state = {}
         self.ship = Ship()
+        self.user = None
         return super(Player, self).__init__(*a, **k)
 
     def __getattr__(self, attr):
@@ -27,6 +28,19 @@ class Player(object):
 
     def exit(self, status=''):
         Game.exit(self.game_id)
+
+    def send_ship(self, ship=None):
+        pass
+
+    def send_user_info(self, user=None):
+        pass
+
+    def send_changes(self, diff):
+        pass
+
+    def incr_battles(self):
+        if self.user:
+            self.user.incr('battles')
 
     @property
     def changes(self):

@@ -2,10 +2,11 @@
 from space_king.player.base import Player
 from libs.websocket import WebSocketHandler
 from logger import logging_on
-
 from flask.sessions import SecureCookieSessionInterface, total_seconds
 from space_king import app
 from space_king.models.user import User
+
+import json
 
 
 @logging_on
@@ -28,8 +29,27 @@ class Gamer(Player, WebSocketHandler):
 
         self.play()
 
+    def close(self):
+        try:
+            self.transport.loseConnection()
+        except AttributeError:
+            pass
+
     def connectionLost(self, reason):
         self.exit()
+
+    def send_ship(self, ship=None):
+        ship = self.ship if ship is None else ship
+        self.transport.write(json.dumps(ship.to_dict()))
+
+    def send_user_info(self, user=None):
+        user = self.user if user is None else user
+        self.transport.write(json.dumps(
+            user.short_info if user else {}
+        ))
+
+    def send_changes(self, diff):
+        self.transport.write(json.dumps(diff))
 
     def frameReceived(self, frame):
         parts = frame.split(" ")

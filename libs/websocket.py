@@ -281,10 +281,23 @@ class WebSocketTransport(object):
         """
         Forward connection lost event to the L{WebSocketHandler}.
         """
-        self._handler.connectionLost(reason)
-        del self._request.transport
-        del self._request
-        del self._handler
+        if hasattr(self, '_handler'):
+            try:
+                self._handler.connectionLost(reason)
+            except AttributeError:
+                pass
+            try:
+                del self._handler
+            except AttributeError:
+                pass
+        try:
+            del self._request.transport
+        except AttributeError:
+            pass
+        try:
+            del self._request
+        except AttributeError:
+            pass
 
     def getPeer(self):
         """
