@@ -81,17 +81,19 @@ function MENU(DISPLAY){
     };
 
     obj.onclick = function(e){
-        var ex = e.x - obj.display.canvas.width / 2;
-        var ey = e.y - obj.display.canvas.height / 2;
+        var ex = e.clientX - obj.display.canvas.width / 2;
+        var ey = e.clientY - obj.display.canvas.height / 2;
         for(var i = 0; i < obj.items.length; i++){
             if(obj.items[i].isIn(ex, ey)) obj.items[i].onclick();
         }
     };
 
     obj.onmousemove = function(e){
-        var ex = e.x - obj.display.canvas.width / 2;
-        var ey = e.y - obj.display.canvas.height / 2;
-        for(var i = 0; i < obj.items.length; i++) obj.items[i].hover(ex, ey);
+        var ex = e.clientX - obj.display.canvas.width / 2;
+        var ey = e.clientY - obj.display.canvas.height / 2;
+        for(var i = 0; i < obj.items.length; i++){
+            obj.items[i].hover(ex, ey);
+        }
     };
 
     obj.close = function(){
