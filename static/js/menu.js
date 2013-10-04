@@ -74,6 +74,12 @@ function MENU(DISPLAY){
         obj.draw();
     };
 
+    obj.onkeyup = function(e){
+        if(obj.items.length > 0){
+            if(e.keyCode == 13 || e.keyCode == 32) obj.items[0].onclick();
+        }
+    };
+
     obj.onclick = function(e){
         var ex = e.x - obj.display.canvas.width / 2;
         var ey = e.y - obj.display.canvas.height / 2;

@@ -17,10 +17,10 @@ function initVK(){
                         type: 'POST',
                         data: request,
                         success: function(data){
-                            console.log("profile is updated");
+                            log("profile is updated");
                         },
                         error: function(error){
-                            console.log(error);
+                            log(error);
                         }
                     });
                 }

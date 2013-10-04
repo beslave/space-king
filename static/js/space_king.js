@@ -18,7 +18,7 @@ function onResize(e){
 }
 
 function log(msg){
-    console.log(msg);
+    // console.log(msg);
 }
 
 $(document).ready(function(e){

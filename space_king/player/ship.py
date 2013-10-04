@@ -33,8 +33,8 @@ class Ship(object):
         self.speed_x = 0
         self.speed_y = 0
         self.angle_speed = pi * 0.9
-        self.acceleration_forward = 550
-        self.acceleration_backward = 500
+        self.acceleration_forward = 650
+        self.acceleration_backward = 550
         self.max_speed = 333
         self.weight = 1
 

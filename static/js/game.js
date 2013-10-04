@@ -7,15 +7,15 @@ function preparePlayerPreview(player, position){
         var fio_font = BASE_FONT;
         var stat_font = SMALL_FONT;
         var stat_y = 33;
-        var fio = player.user_info.fio;
+        var fio = player.user_info.fio ? player.user_info.fio : 'Guest';
 
         var separator = [" / ", TXT_COLOR];
         var stat_data = [
-            [player.user_info.battles, INFO_COLOR],
+            [player.user_info.battles ? player.user_info.battles : '-', INFO_COLOR],
             separator,
-            [player.user_info.wins, JOY_COLOR],
+            [player.user_info.wins ? player.user_info.wins : '-', JOY_COLOR],
             separator,
-            [player.user_info.defeats, WAR_COLOR]
+            [player.user_info.defeats ? player.user_info.defeats : '-', WAR_COLOR]
         ];
         var stat = "";
         for(var i = 0; i < stat_data.length; i++) stat += stat_data[i][0];
@@ -26,17 +26,19 @@ function preparePlayerPreview(player, position){
         preview_context.font = stat_font;
         var mstat = preview_context.measureText(stat);
 
-        var canvas_height = player.user_info.avatar ? player.preview.avatar.height : 100;
-        var canvas_width = player.user_info.avatar ? player.preview.avatar.width : 0;
+        var canvas_height = player.preview.avatar ? player.preview.avatar.height : 100;
+        console.log(canvas_height);
+        var avatar_width = player.preview.avatar ? player.preview.avatar.width : 0;
+        var canvas_width = Math.max(mfio.width, mstat.width) + avatar_width + interval;
 
         player.preview.canvas.height = canvas_height;
-        player.preview.canvas.width = Math.max(mfio.width, mstat.width) + canvas_width + interval;
+        player.preview.canvas.width = canvas_width;
 
         preview_context.globalCompositeOperation = "lighter";
         preview_context.globalAlpha = PREVIEW_ALPHA;
 
         if(player.user_info.avatar){
-            var avatar_x = (position == 0 ? 0 : player.preview.canvas.width - player.preview.avatar.width);
+            var avatar_x = (position == 0 ? 0 : player.preview.canvas.width - avatar_width);
             preview_context.drawImage(
                 player.preview.avatar,
                 0, 0, player.preview.avatar.width, player.preview.avatar.height,
@@ -49,12 +51,12 @@ function preparePlayerPreview(player, position){
 
         preview_context.font = fio_font;
         preview_context.fillStyle = BASE_COLOR;
-        var fio_x = (position == 0 ? canvas_width + interval : 0);
+        var fio_x = (position == 0 ? avatar_width + interval : 0);
         preview_context.fillText(fio, fio_x, 0);
 
         preview_context.font = stat_font;
 
-        var stat_x = (position == 0 ? canvas_width + interval : 0);
+        var stat_x = (position == 0 ? avatar_width + interval : 0);
         var stat_part_x = stat_x;
         for(var i = 0; i < stat_data.length; i++){
             preview_context.fillStyle = stat_data[i][1];
@@ -63,11 +65,12 @@ function preparePlayerPreview(player, position){
             stat_part_x += mt.width;
         }
         preview_context.globalAlpha = 1.0;
+        player.preview.is_ready = true;
     }
     if(player.user_info.avatar){
         player.preview.avatar = document.createElement("image");
         player.preview.avatar.src = player.user_info.avatar;
-        player.preview.avatar.onload = prepare_preview()
+        player.preview.avatar.onload = prepare_preview
     } else {
         prepare_preview();
     }
