@@ -1,5 +1,5 @@
 # coding: utf-8
-from libs import angle, div
+from libs import angle, div, normalize_angle
 from libs.physics.collisions import get_velocities2d
 from logger import logging_on
 from math import cos, pi, sin
@@ -84,11 +84,10 @@ class Game(object):
             self.is_play = self.next_frame()
             self.t1 = self.t2
             diffs = [p.changes for p in self.players]
-            if any(diffs):
-                f = lambda o: list(enemies_data(o))
-                x = zip(*map(f, [self.players, diffs]))
-                for (p, enemies), (d, enemies_diffs) in x:
-                    p.send_changes([d] + list(enemies_diffs))
+            f = lambda o: list(enemies_data(o))
+            x = zip(*map(f, [self.players, diffs]))
+            for (p, enemies), (d, enemies_diffs) in x:
+                p.send_changes([d] + list(enemies_diffs))
             reactor.callLater(settings.SYSTEM_DELAY, self.play)
         else:
             self.stop()
@@ -117,6 +116,7 @@ class Game(object):
                 player.angle += player.angle_speed * self.dT
             if player.is_right:
                 player.angle -= player.angle_speed * self.dT
+        player.angle = normalize_angle(player.angle)
 
     def move_ship(self, player):
         player.x += player.speed_x * self.dT

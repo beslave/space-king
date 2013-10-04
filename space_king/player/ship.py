@@ -18,7 +18,9 @@ class Ship(object):
         self.rotation = pi / 2 - angle
         self.radius = 48
         self.color = random.choice(["#C95", "#777", "#669"])
-        self.light_color = random.choice(["#F00", "#0F0", "#00F", "#FF0", "#F0F", "#0FF"])
+        self.light_color = random.choice(
+            ["#F00", "#0F0", "#00F", "#FF0", "#F0F", "#0FF"]
+        )
         self.turbine_color = random.choice(["#555", "#446", "#644", "#464"])
         self.is_forward = False
         self.is_backward = False
@@ -31,9 +33,9 @@ class Ship(object):
         self.speed_x = 0
         self.speed_y = 0
         self.angle_speed = pi * 0.9
-        self.acceleration_forward = 300
-        self.acceleration_backward = 250
-        self.max_speed = 400
+        self.acceleration_forward = 550
+        self.acceleration_backward = 500
+        self.max_speed = 333
         self.weight = 1
 
     def to_dict(self):

@@ -9,7 +9,7 @@ class Player(object):
     def __init__(self, *a, **k):
         self._state = {}
         self.ship = Ship()
-        self.user = None
+        self.user = {}
         self.is_play = False
         return super(Player, self).__init__(*a, **k)
 
@@ -57,7 +57,7 @@ class Player(object):
 
     def lose(self):
         if self.user:
-            self.user.incr('wins')
+            self.user.incr('defeats')
         if self.ship:
             self.ship.lose = True
 

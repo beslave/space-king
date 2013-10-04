@@ -38,18 +38,19 @@ class Gamer(Player, WebSocketHandler):
     def connectionLost(self, reason):
         self.exit()
 
-    def send_ship(self, ship=None):
-        ship = self.ship.to_dict() if ship is None else ship
+    def send_ship(self, diff=None):
+        ship = self.ship.to_dict() if diff is None else diff
         self.transport.write(json.dumps(ship))
+
+    def send_changes(self, changes):
+        if any(changes):
+            self.transport.write(json.dumps(changes))
 
     def send_user_info(self, user=None):
         user = self.user if user is None else user
         self.transport.write(json.dumps(
             user.short_info if user else {}
         ))
-
-    def send_changes(self, diff):
-        self.transport.write(json.dumps(diff))
 
     def frameReceived(self, frame):
         parts = frame.split(' ')

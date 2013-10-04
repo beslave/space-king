@@ -52,3 +52,10 @@ def random_string(size_min=6, size_max=None, pretty=False):
     ])
     size = random.randint(size_min, size_max)
     return "".join(random.choice(chars) for x in xrange(size))
+
+
+def normalize_angle(angle):
+    angle %= 2.0 * pi
+    if angle > pi:
+        angle = angle - 2.0 * pi
+    return angle
