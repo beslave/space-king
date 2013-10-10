@@ -207,6 +207,9 @@ function GAME(DISPLAY){
         };
     };
     obj.drawBackground = function(x, y){
+        k = Math.round(Math.cos(this.players[0].rotation));
+        x *= k;
+        y *= k;
         this.display.container.style.backgroundPositionX = -this.SPACE_RADIUS + this.cx - x + 'px';
         this.display.container.style.backgroundPositionY = -this.SPACE_RADIUS + this.cy - y + 'px';
     };
