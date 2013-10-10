@@ -16,7 +16,7 @@ SERVICES = {
 
 
 @app.route('/update_profile_from_<service>', methods=['POST'])
-def update_(service):
+def update_profile(service):
     user_pk = session.get('user_pk')
     if not user_pk or service not in SERVICES:
         abort(403)
