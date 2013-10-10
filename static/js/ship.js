@@ -10,7 +10,7 @@ function Ship(kwargs, game){
     obj.turbine_width = 0.4 * obj.radius;
     obj.turbine_height = 0.95 * obj.radius;
     obj.draw_counter = 0;
-    obj.fire_bottoms = [1.7, 1.7, 1.85];
+    obj.fire_bottoms = [1.7, 1.75, 1.85];
     obj.draw = function(context, rx, ry){
         this.rx = rx;
         this.ry = ry;
@@ -24,6 +24,7 @@ function Ship(kwargs, game){
         this.draw_reverse_turbines(context);
         context.rotate(this.angle - Math.PI / 2);
         context.translate(-this.rx, -this.ry);
+        this.draw_counter++;
     };
     obj.draw_casing = function(context){
         context.beginPath();

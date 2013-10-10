@@ -94,6 +94,7 @@ function MENU(DISPLAY){
         for(var i = 0; i < obj.items.length; i++){
             obj.items[i].hover(ex, ey);
         }
+        obj.is_unchanged = false;
     };
 
     obj.close = function(){

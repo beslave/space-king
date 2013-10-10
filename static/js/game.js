@@ -1,9 +1,9 @@
 function preparePlayerPreview(player, position){
-    player.preview = {}
-    player.preview.canvas = document.createElement("canvas");
+    player.preview = {};
+
     var prepare_preview = function(e){
+        display.ocontext.save();
         var interval = 7;
-        var preview_context = player.preview.canvas.getContext("2d");
         var fio_font = BASE_FONT;
         var stat_font = SMALL_FONT;
         var stat_y = 33;
@@ -21,50 +21,52 @@ function preparePlayerPreview(player, position){
         for(var i = 0; i < stat_data.length; i++) stat += stat_data[i][0];
 
         // check texts widths"
-        preview_context.font = fio_font;
-        var mfio = preview_context.measureText(fio);
-        preview_context.font = stat_font;
-        var mstat = preview_context.measureText(stat);
+        display.ocontext.font = fio_font;
+        var mfio = display.ocontext.measureText(fio);
+        display.ocontext.font = stat_font;
+        var mstat = display.ocontext.measureText(stat);
 
         var canvas_height = player.preview.avatar ? player.preview.avatar.height : 100;
         var avatar_width = player.preview.avatar ? player.preview.avatar.width : 0;
         var canvas_width = Math.max(mfio.width, mstat.width) + avatar_width + interval;
 
-        player.preview.canvas.height = canvas_height;
-        player.preview.canvas.width = canvas_width;
+        var xpos = position == 0 ? BASE_PADDING : display.buffer.width - canvas_width - BASE_PADDING;
+        var ypos = BASE_PADDING;
 
-        preview_context.globalCompositeOperation = "lighter";
-        preview_context.globalAlpha = PREVIEW_ALPHA;
+        display.ocontext.translate(xpos, ypos);
+
+        display.ocontext.globalCompositeOperation = "lighter";
+        display.ocontext.globalAlpha = PREVIEW_ALPHA;
 
         if(player.user_info.avatar){
-            var avatar_x = (position == 0 ? 0 : player.preview.canvas.width - avatar_width);
-            preview_context.drawImage(
+            var avatar_x = (position == 0 ? 0 : canvas_width - avatar_width);
+            display.ocontext.drawImage(
                 player.preview.avatar,
                 0, 0, player.preview.avatar.width, player.preview.avatar.height,
                 avatar_x, 0, player.preview.avatar.width, player.preview.avatar.height
             );
         }
 
-        preview_context.textAlign = "left";
-        preview_context.textBaseline = "top";
+        display.ocontext.textAlign = "left";
+        display.ocontext.textBaseline = "top";
 
-        preview_context.font = fio_font;
-        preview_context.fillStyle = BASE_COLOR;
+        display.ocontext.font = fio_font;
+        display.ocontext.fillStyle = BASE_COLOR;
         var fio_x = (position == 0 ? avatar_width + interval : 0);
-        preview_context.fillText(fio, fio_x, 0);
+        display.ocontext.fillText(fio, fio_x, 0);
 
-        preview_context.font = stat_font;
+        display.ocontext.font = stat_font;
 
         var stat_x = (position == 0 ? avatar_width + interval : 0);
         var stat_part_x = stat_x;
         for(var i = 0; i < stat_data.length; i++){
-            preview_context.fillStyle = stat_data[i][1];
-            preview_context.fillText(stat_data[i][0], stat_part_x, stat_y);
-            var mt = preview_context.measureText(stat_data[i][0]);
+            display.ocontext.fillStyle = stat_data[i][1];
+            display.ocontext.fillText(stat_data[i][0], stat_part_x, stat_y);
+            var mt = display.ocontext.measureText(stat_data[i][0]);
             stat_part_x += mt.width;
         }
-        preview_context.globalAlpha = 1.0;
         player.preview.is_ready = true;
+        display.ocontext.restore();
     }
     if(player.user_info.avatar){
         player.preview.avatar = document.createElement("image");
@@ -91,8 +93,6 @@ function GAME(DISPLAY){
     
     obj.players = [null, null];
     obj.map_size = 240;
-    obj.mapcanvas = document.createElement('canvas');
-    obj.mapcontext = obj.mapcanvas.getContext('2d');
 
     obj.socket = new WebSocket(SOCKET_URL);
     obj.socket.onopen = function(){
@@ -187,7 +187,6 @@ function GAME(DISPLAY){
         this.display.bcontext.translate(-this.cx, -this.cy);
 
         this.drawMap(this.display.bcontext);
-        this.drawUserPreviews(this.display.bcontext);
 
         this.display.flip();
     };
@@ -208,8 +207,8 @@ function GAME(DISPLAY){
         };
     };
     obj.drawBackground = function(x, y){
-        this.container.style.backgroundPositionX = -this.SPACE_RADIUS + this.cx - x + 'px';
-        this.container.style.backgroundPositionY = -this.SPACE_RADIUS + this.cy - y + 'px';
+        this.display.container.style.backgroundPositionX = -this.SPACE_RADIUS + this.cx - x + 'px';
+        this.display.container.style.backgroundPositionY = -this.SPACE_RADIUS + this.cy - y + 'px';
     };
     obj.drawArea = function(x, y){
         var ox = this.cx - x;
@@ -273,26 +272,6 @@ function GAME(DISPLAY){
         context.rotate(this.players[0].rotation);
         context.translate(-mx, -my);
     };
-    obj.drawUserPreviews = function(context){
-        context.drawImage(
-            this.players[0].preview.canvas,
-            0, 0,
-            this.players[0].preview.canvas.width,
-            this.players[0].preview.canvas.height,
-            this.pad, this.pad,
-            this.players[0].preview.canvas.width,
-            this.players[0].preview.canvas.height
-        );
-        context.drawImage(
-            this.players[1].preview.canvas,
-            0, 0,
-            this.players[1].preview.canvas.width,
-            this.players[1].preview.canvas.height,
-            this.display.buffer.width - this.players[1].preview.canvas.width - this.pad, this.pad,
-            this.players[1].preview.canvas.width,
-            this.players[1].preview.canvas.height
-        );
-    };
     obj.close = function(){
         this.socket.onmessage = null;
         this.socket.onclose = null;
@@ -308,6 +287,7 @@ function GAME(DISPLAY){
         obj.display.addErrorMessage(YOU_LOSE);
     };
     obj.onloop = function(){
+        obj.is_unchanged = false;
         obj.cx = obj.display.buffer.width / 2;
         obj.cy = obj.display.buffer.height / 2;
         if(obj.GAME_STATE >= 3){

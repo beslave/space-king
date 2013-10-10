@@ -22,9 +22,18 @@ function Message(msg, type){
         context.lineWidth = 1;
         context.font = this.font;
         var d = new Date(this.time);
-        var msg = d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + " - " + this.msg;
+        var msg =  iFormat(d.getHours(), 2) + ":" + iFormat(d.getMinutes(), 2) + ":" + iFormat(d.getSeconds(), 2) + " - " + this.msg;
         context.fillText(msg, x, y);
         context.strokeText(msg, x, y);
     }
     return obj;
+}
+
+function iFormat(number, len){
+    number = parseInt(number);
+    var rez = "";
+    for(var i=len; i>0; i--){
+        rez += Math.floor(number % Math.pow(10, i) / Math.pow(10, i-1)) % 10;
+    }
+    return rez
 }

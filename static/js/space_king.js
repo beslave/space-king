@@ -32,5 +32,5 @@ $(document).ready(function(e){
     window.onresize = onResize;
     onResize();
     display.showMenu();
-    display.loop();
+    setInterval(function(){ display.loop(); }, FRAME_DELAY);
 });

@@ -10,7 +10,12 @@ var DISPLAY = function(SPACE_RADIUS){
         "onmousemove"
     ];
     obj.resetHandlers = function(handler){
+        this.overlay.width = this.overlay.width;
+        this.buffer.width = this.buffer.width;
+        this.canvas.width = this.canvas.width;
         this.messages = [];
+        this.container.style.backgroundPositionX = "center";
+        this.container.style.backgroundPositionY = "center";
         for(var i=0; i<this.event_handlers.length; i++){
             var x = this.event_handlers[i];
             if(handler && handler[x]) this[x] = handler[x];
@@ -31,6 +36,7 @@ var DISPLAY = function(SPACE_RADIUS){
         this.bcontext = this.buffer.getContext("2d");
         this.overlay = document.getElementById("overlay");
         this.ocontext = this.overlay.getContext("2d");
+        this.container = document.getElementById("display");
     };
     obj.init();
 
@@ -41,35 +47,46 @@ var DISPLAY = function(SPACE_RADIUS){
         this.resetHandlers(MENU(this));
     };
 
+    obj.setSize = function(attr, size){
+        this.canvas[attr] = size;
+        this.buffer[attr] = size;
+        this.overlay[attr] = size;
+        if(this.handler) this.handler.is_unchanged = false;
+    };
     obj.setWidth = function(width){
-        this.canvas.width = width;
-        this.buffer.width = width;
-        this.overlay.width = width;
+        this.setSize('width', width);
     };
     obj.setHeight = function(height){
-        this.canvas.height = height;
-        this.buffer.height = height;
-        this.overlay.height = height;
+        this.setSize('height', height);
     };
     obj.loop = function(){
-        setTimeout(function(){ obj.loop(); }, FRAME_DELAY);
-        if(this.onloop && !this.in_work){
+        if(!this.handler) return;
+        if(!this.handler.is_unchanged && this.onloop && !this.in_work){
+            this.handler.is_unchanged = true;
             this.in_work = true;
             this.onloop();
             this.in_work = false;
+            this.showMessages();
         }
-        this.showMessages();
+        this.updateMessages();
     };
     obj.setHandler = function(handler){
         this.resetHandlers(handler);
     };
 
-    obj.showMessages = function(){
+    obj.updateMessages = function(){
         var cur_time = new Date().getTime();
-        this.context.translate(0, 0);
         for(var i = this.messages.length - 1, j = 0; i >= 0; i--, j++){
-            if(cur_time - this.messages[i].time > MESSAGE_SHOWING_TIME) this.messages.splice(i, 1);
-            else this.messages[i].draw(this.context, 10, 10 + j * 36);
+            if(cur_time - this.messages[i].time > MESSAGE_SHOWING_TIME){
+                if(this.handler) this.handler.is_unchanged = false;
+                this.messages.splice(i, 1);
+            }
+        }        
+    }
+
+    obj.showMessages = function(){
+        for(var i = this.messages.length - 1, j = 0; i >= 0; i--, j++){
+            this.messages[i].draw(this.context, 10, 10 + j * 36);
         }
     };
     obj.addErrorMessage = function(msg){

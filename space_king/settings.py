@@ -3,7 +3,7 @@ DEBUG = True
 SITE_PORT = 7001
 SOCKETSERVER_PORTS = [7002]
 
-VERSION = '0.0.1'
+VERSION = '0.0.2'
 
 SPACE_RADIUS = 1000
 PIXELS_ACCURACY = 1
@@ -13,7 +13,7 @@ PLAYER_WAITING_TIME = 10
 PLAYER_START_RADIUS = 100
 
 JS = dict(
-    MESSAGE_SHOWING_TIME=5 * 1000,
+    MESSAGE_SHOWING_TIME=7 * 1000,
 
     CONNECTION_LOST='"Connection is lost. The game has been interrupted."',
     NOT_ALL_DATA_LOADED='"Wait! Not all data are loaded!"',
@@ -21,7 +21,7 @@ JS = dict(
     YOU_WIN='"You win!"',
     WAIT_PLAYER='"Waiting for second player"',
 
-    FRAME_DELAY=50,
+    FRAME_DELAY=30,
     FLIPPING='true',
 
     LARGE_FONT='"30px Calibri"',
