@@ -13,6 +13,8 @@ class User(object):
             '__info__',
             db1.hgetall(self.db_key) or {}
         )
+        for k, v in self.__info__.iteritems():
+            self.__info__[k] = v.decode('utf-8')
 
     @property
     def short_info(self):
@@ -32,7 +34,7 @@ class User(object):
 
     @property
     def fio(self):
-        return '{} {}'.format(self.last_name or '', self.first_name or '')
+        return u'{} {}'.format(self.last_name or u'', self.first_name or u'')
 
     @property
     def battles(self):

@@ -7,9 +7,9 @@ from time import time
 
 SERVICES = {
     "vkontakte": {
-        "last_name": ("last_name", lambda x: x.decode('utf-8')),
-        "first_name": ("first_name", lambda x: x.decode('utf-8')),
-        "photo_100": ("avatar", lambda x: x.decode('utf-8')),
+        "last_name": ("last_name", None),
+        "first_name": ("first_name", None),
+        "photo_100": ("avatar", None),
         "sex": ("sex", lambda x: "f" if int(x) == 0 else "m")
     }
 }
