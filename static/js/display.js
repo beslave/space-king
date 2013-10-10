@@ -1,7 +1,5 @@
 var DISPLAY = function(SPACE_RADIUS){
     var obj = {};
-    obj.fon = new Image();
-    obj.fon.src = "/static/css/images/main_background.jpeg";
     obj.messages = [];
 
     obj.event_handlers = [
@@ -31,12 +29,13 @@ var DISPLAY = function(SPACE_RADIUS){
         this.context = this.canvas.getContext("2d");
         this.buffer = document.getElementById(FLIPPING ? "gameBuffer" : "gameID");
         this.bcontext = this.buffer.getContext("2d");
+        this.overlay = document.getElementById("overlay");
+        this.ocontext = this.overlay.getContext("2d");
     };
     obj.init();
 
     obj.playGame = function(){
-        if(this.fon.complete) this.resetHandlers(GAME(this));
-        else this.addWarningMessage(NOT_ALL_DATA_LOADED);
+        this.resetHandlers(GAME(this));
     };
     obj.showMenu = function(){
         this.resetHandlers(MENU(this));
@@ -45,10 +44,12 @@ var DISPLAY = function(SPACE_RADIUS){
     obj.setWidth = function(width){
         this.canvas.width = width;
         this.buffer.width = width;
+        this.overlay.width = width;
     };
     obj.setHeight = function(height){
         this.canvas.height = height;
         this.buffer.height = height;
+        this.overlay.height = height;
     };
     obj.loop = function(){
         setTimeout(function(){ obj.loop(); }, FRAME_DELAY);

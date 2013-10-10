@@ -11,7 +11,10 @@ a {color:#FFF;}
 #menuID>ul>li.current>a {color:#777;}
 
 #contentID {margin:0px; text-align:center;}
-#gameID {background-color:rgba(0,0,0,1); position:relative; z-index:1;}
+
+#display {background:black url("/static/css/images/main_background.jpeg") no-repeat scroll center center; position:relative;}
+#gameID {position:relative; z-index:1;}
 #gameBuffer {display:none;}
+#overlay {position:absolute; top:0; left:0;}
 
 #footerID {position:fixed; bottom:0; margin:10px 5px; width:100%; z-index:0;}

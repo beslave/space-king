@@ -21,7 +21,8 @@ function Message(msg, type){
         }
         context.lineWidth = 1;
         context.font = this.font;
-        var msg = new Date(this.time).toTimeString() + ": " + this.msg;
+        var d = new Date(this.time);
+        var msg = d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + " - " + this.msg;
         context.fillText(msg, x, y);
         context.strokeText(msg, x, y);
     }

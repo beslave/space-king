@@ -27,7 +27,6 @@ function preparePlayerPreview(player, position){
         var mstat = preview_context.measureText(stat);
 
         var canvas_height = player.preview.avatar ? player.preview.avatar.height : 100;
-        console.log(canvas_height);
         var avatar_width = player.preview.avatar ? player.preview.avatar.width : 0;
         var canvas_width = Math.max(mfio.width, mstat.width) + avatar_width + interval;
 
@@ -79,13 +78,11 @@ function preparePlayerPreview(player, position){
 function GAME(DISPLAY){
     var obj = {};
     obj.display = DISPLAY;
-    obj.bg_image = DISPLAY.fon;
-    obj.bg_canvas = document.createElement("canvas");
-    obj.bg_context = obj.bg_canvas.getContext("2d");
 
     obj.lc = 0;     // loop counter
     obj.SPACE_RADIUS = DISPLAY.SPACE_RADIUS || 1000;
     obj.pad = BASE_PADDING;
+    obj.container = document.getElementById('display');
 
     // 0 - SELF SHIP PARAMS LOADING
     // 1 - OTHER OBJECTS LOADING
@@ -121,7 +118,6 @@ function GAME(DISPLAY){
             obj.players[1].user_info = data;
             preparePlayerPreview(obj.players[1], 1);
             obj.GAME_STATE++;
-            obj.prepareBackground();
         } else if(obj.GAME_STATE == 4){
             for(var i=0; i < data.length; i++){
                 for(var key in data[i]) obj.players[i][key] = data[i][key];
@@ -132,34 +128,6 @@ function GAME(DISPLAY){
     };
     obj.socket.onerror = function(error){
         log("socket error:", error);
-    };
-
-    obj.prepareBackground = function(){
-        var size = this.SPACE_RADIUS * 2;
-        this.bg_canvas.width = size;
-        this.bg_canvas.height = size;
-        var k = Math.max(size / this.bg_image.width, size / this.bg_image.height);
-        var f_width = this.bg_image.width * k;
-        var f_height = this.bg_image.height * k;
-        var ix = (f_width - size) / (2.0 * k);
-        var iy = (f_height - size) / (2.0 * k);
-        var iw = this.bg_canvas.width / k;
-        var ih = this.bg_canvas.height / k;
-        this.bg_context.drawImage(
-            this.bg_image,
-            ix, iy, iw, ih,
-            0, 0, this.bg_canvas.width, this.bg_canvas.height
-        );
-
-        // Draw area
-        this.bg_context.strokeStyle = WAR_COLOR;
-        this.bg_context.lineWidth = this.SPACE_RADIUS * 0.01;
-        this.bg_context.translate(this.SPACE_RADIUS, this.SPACE_RADIUS);
-        this.bg_context.beginPath();
-        this.bg_context.arc(0, 0, this.SPACE_RADIUS - this.bg_context.lineWidth/2, Math.PI * 2, false);
-        this.bg_context.closePath();
-        this.bg_context.translate(-this.SPACE_RADIUS, -this.SPACE_RADIUS);
-        this.bg_context.stroke();
     };
 
     obj.notify = function(command){
@@ -211,6 +179,7 @@ function GAME(DISPLAY){
         this.display.bcontext.translate(-this.cx, -this.cy);
 
         this.drawBackground(pos.x, pos.y);
+        this.drawArea(pos.x, pos.y);
         this.drawObjects(pos.x, pos.y);
 
         this.display.bcontext.translate(this.cx, this.cy);
@@ -239,13 +208,22 @@ function GAME(DISPLAY){
         };
     };
     obj.drawBackground = function(x, y){
-        var w = this.display.buffer.width, h = this.display.buffer.height;
-        this.display.bcontext.globalAlpha = BASE_ALPHA;
-        this.display.bcontext.drawImage(this.bg_canvas,
-            x - w / 2 + this.SPACE_RADIUS, y - h / 2 + this.SPACE_RADIUS, w, h,
-            0, 0,  w, h
-        );
-        this.display.bcontext.globalAlpha = 1;
+        this.container.style.backgroundPositionX = -this.SPACE_RADIUS + this.cx - x + 'px';
+        this.container.style.backgroundPositionY = -this.SPACE_RADIUS + this.cy - y + 'px';
+    };
+    obj.drawArea = function(x, y){
+        var ox = this.cx - x;
+        var oy = this.cy - y;
+        this.display.bcontext.globalAlpha = BASE_ALPHA / 2;
+        this.display.bcontext.translate(ox, oy);
+        this.display.bcontext.strokeStyle = WAR_COLOR;
+        this.display.bcontext.lineWidth = this.SPACE_RADIUS * 0.01;
+        this.display.bcontext.beginPath();
+        this.display.bcontext.arc(0, 0, this.SPACE_RADIUS - this.display.bcontext.lineWidth/2, Math.PI * 2, false);
+        this.display.bcontext.closePath();
+        this.display.bcontext.translate(-ox, -oy);
+        this.display.bcontext.stroke();
+        this.display.bcontext.globalAlpha = 1.0;
     };
     obj.drawObjects = function(x, y){
         for(var i = 0; i < this.players.length; i++){

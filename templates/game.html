@@ -10,7 +10,9 @@
             {% endfor %}
         };
     </script>
-    {% include "game_canvas.html" %}
+    <div id="display">
+        {% include "game_canvas.html" %}
+    </div>
     {% block game_content %}
     {% endblock %}
 {% endblock %}
