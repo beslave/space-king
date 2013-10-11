@@ -94,41 +94,49 @@ function GAME(DISPLAY){
     obj.players = [null, null];
     obj.map_size = 240;
 
-    obj.socket = new WebSocket(SOCKET_URL);
-    obj.socket.onopen = function(){
-        log("socket open");
-    };
-    obj.socket.onclose = function(event){
-        obj.display.showMenu();
-        obj.display.addErrorMessage(CONNECTION_LOST);
-    };
-    obj.socket.onmessage = function(event){
-        var data = $.parseJSON(event.data);
-        if(obj.GAME_STATE == 0){
-            obj.players[0] = Ship(data, obj);
-            obj.GAME_STATE++;
-        } else if(obj.GAME_STATE == 1){
-            obj.players[0].user_info = data;
-            preparePlayerPreview(obj.players[0], 0);
-            obj.GAME_STATE++;
-        } else if(obj.GAME_STATE == 2){
-            obj.players[1] = Ship(data, obj);
-            obj.GAME_STATE++;
-        } else if(obj.GAME_STATE == 3){
-            obj.players[1].user_info = data;
-            preparePlayerPreview(obj.players[1], 1);
-            obj.GAME_STATE++;
-        } else if(obj.GAME_STATE == 4){
-            for(var i=0; i < data.length; i++){
-                for(var key in data[i]) obj.players[i][key] = data[i][key];
+    obj.connect = function(){
+        obj.socket = new WebSocket(SOCKET_URL);
+        obj.socket.onopen = function(){
+            log("socket open");
+        };
+        obj.socket.onclose = function(event){
+            if(obj.GAME_STATE == 0) obj.connect();
+            else {
+                obj.display.showMenu();
+                obj.display.addErrorMessage(CONNECTION_LOST);
             }
-            if(obj.players[0].win) obj.win();
-            if(obj.players[0].lose) obj.lose();
-        }
+        };
+        obj.socket.onmessage = function(event){
+            var data = $.parseJSON(event.data);
+            if(obj.GAME_STATE == 0){
+                obj.players[0] = Ship(data, obj);
+                obj.GAME_STATE++;
+            } else if(obj.GAME_STATE == 1){
+                obj.players[0].user_info = data;
+                preparePlayerPreview(obj.players[0], 0);
+                obj.GAME_STATE++;
+            } else if(obj.GAME_STATE == 2){
+                obj.players[1] = Ship(data, obj);
+                obj.GAME_STATE++;
+            } else if(obj.GAME_STATE == 3){
+                obj.players[1].user_info = data;
+                preparePlayerPreview(obj.players[1], 1);
+                obj.display.buffer.width = obj.display.buffer.width;
+                obj.display.canvas.width = obj.display.canvas.width;
+                obj.GAME_STATE++;
+            } else if(obj.GAME_STATE == 4){
+                for(var i=0; i < data.length; i++){
+                    for(var key in data[i]) obj.players[i][key] = data[i][key];
+                }
+                if(obj.players[0].win) obj.win();
+                if(obj.players[0].lose) obj.lose();
+            }
+        };
+        obj.socket.onerror = function(error){
+            log("socket error:", error);
+        };
     };
-    obj.socket.onerror = function(error){
-        log("socket error:", error);
-    };
+    obj.connect();
 
     obj.notify = function(command){
         this.socket.send(command);
@@ -171,7 +179,21 @@ function GAME(DISPLAY){
         this.display.bcontext.translate(-this.cx, -this.cy);
         this.display.flip();
     };
+    obj.clear = function(){
+        // clear objects
+        for(var i = 0; i < this.players.length; i++) this.players[i].clear(this.display.bcontext);
+        // clear map
+        if(this.mx && this.my){
+            this.display.bcontext.clearRect(
+                this.mx - this.map_size,
+                this.my - this.map_size,
+                this.map_size * 2,
+                this.map_size * 2
+            );
+        }
+    };
     obj.draw = function(){
+        this.clear();
         var pos = this.getPosition();
 
         this.display.bcontext.translate(this.cx, this.cy);
@@ -179,7 +201,6 @@ function GAME(DISPLAY){
         this.display.bcontext.translate(-this.cx, -this.cy);
 
         this.drawBackground(pos.x, pos.y);
-        this.drawArea(pos.x, pos.y);
         this.drawObjects(pos.x, pos.y);
 
         this.display.bcontext.translate(this.cx, this.cy);
@@ -213,20 +234,6 @@ function GAME(DISPLAY){
         this.display.container.style.backgroundPositionX = -this.SPACE_RADIUS + this.cx - x + 'px';
         this.display.container.style.backgroundPositionY = -this.SPACE_RADIUS + this.cy - y + 'px';
     };
-    obj.drawArea = function(x, y){
-        var ox = this.cx - x;
-        var oy = this.cy - y;
-        this.display.bcontext.globalAlpha = BASE_ALPHA / 2;
-        this.display.bcontext.translate(ox, oy);
-        this.display.bcontext.strokeStyle = WAR_COLOR;
-        this.display.bcontext.lineWidth = this.SPACE_RADIUS * 0.01;
-        this.display.bcontext.beginPath();
-        this.display.bcontext.arc(0, 0, this.SPACE_RADIUS - this.display.bcontext.lineWidth/2, Math.PI * 2, false);
-        this.display.bcontext.closePath();
-        this.display.bcontext.translate(-ox, -oy);
-        this.display.bcontext.stroke();
-        this.display.bcontext.globalAlpha = 1.0;
-    };
     obj.drawObjects = function(x, y){
         for(var i = 0; i < this.players.length; i++){
             this.players[i].draw(
@@ -237,9 +244,9 @@ function GAME(DISPLAY){
         }
     };
     obj.drawMap = function(context){
-        var mx = this.display.buffer.width - this.map_size / 2 - this.pad;
-        var my = this.display.buffer.height - this.map_size / 2 - this.pad;
-        context.translate(mx, my);
+        this.mx = this.display.buffer.width - this.map_size / 2 - this.pad;
+        this.my = this.display.buffer.height - this.map_size / 2 - this.pad;
+        context.translate(this.mx, this.my);
         context.rotate(-this.players[0].rotation);
 
         // Draw area
@@ -273,7 +280,7 @@ function GAME(DISPLAY){
             context.strokeStyle = "rgba(255,127,63,0.3)";
         }
         context.rotate(this.players[0].rotation);
-        context.translate(-mx, -my);
+        context.translate(-this.mx, -this.my);
     };
     obj.close = function(){
         this.socket.onmessage = null;
@@ -294,10 +301,6 @@ function GAME(DISPLAY){
         obj.cx = obj.display.buffer.width / 2;
         obj.cy = obj.display.buffer.height / 2;
         if(obj.GAME_STATE >= 3){
-            if(!obj.already_drawed){
-                obj.display.buffer.width = obj.display.buffer.width;
-                obj.display.canvas.width = obj.display.canvas.width;
-            }
             obj.draw();
         } else obj.wait();
         obj.lc++;

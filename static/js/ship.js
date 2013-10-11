@@ -26,6 +26,12 @@ function Ship(kwargs, game){
         context.translate(-this.rx, -this.ry);
         this.draw_counter++;
     };
+    obj.clear = function(context){
+        if(this.rx && this.ry){
+            var D = this.radius * 3;
+            context.clearRect(this.rx - D, this.ry - D, D * 2, D * 2);
+        }
+    };
     obj.draw_casing = function(context){
         context.beginPath();
         context.arc(0, 0, this.radius, 2 * Math.PI, false);
