@@ -100,30 +100,6 @@ redis_methods_with_key = [
     'hvals'
 ]
 
-""" ???
-delete
-mget
-mset
-msetnx
-rename
-renamenx
-watch
-blpop
-brpop
-brpoplpush
-rpoplpush
-sdiff
-sdiffstore
-sinter
-sinterstore
-smove
-sunion
-sunionstore
-zinterstore
-zunionstore
-_zaggregate
-"""
-
 
 def patched_method(old):
     @wraps(old)
@@ -146,7 +122,7 @@ class LocalRedis(Redis):
     pass
 
 
-pool_db0 = ConnectionPool(db=0)
-pool_db1 = ConnectionPool(db=1)
+pool_db0 = ConnectionPool(db=settings.REDIS_DB0)
+pool_db1 = ConnectionPool(db=settings.REDIS_DB1)
 db0 = LocalRedis(connection_pool=pool_db0)
 db1 = LocalRedis(connection_pool=pool_db1)
