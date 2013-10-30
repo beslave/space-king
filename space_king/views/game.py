@@ -32,6 +32,7 @@ def index():
 @app.route("/vk-iframe")
 def vk_iframe():
     user_pk = session.get("user_pk")
+
     if user_pk is None:
         # check auth_key
         auth_key = request.args.get("auth_key", "")
@@ -52,6 +53,10 @@ def vk_iframe():
             abort(403)
     else:
         user = User(pk=user_pk)
+
+    from libs.vk import send_notification
+    send_notification(u"Привіт світ sdfsdf", user.vkontakte_user_id)
+
     return render_template(
         "vk_iframe.html",
         socket_url=socket_url(),
