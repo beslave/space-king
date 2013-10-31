@@ -180,17 +180,19 @@ function GAME(DISPLAY){
         this.display.flip();
     };
     obj.clear = function(){
+        this.display.bcontext.clearRect(0, 0, this.display.buffer.width, this.display.buffer.height);
         // clear objects
-        for(var i = 0; i < this.players.length; i++) this.players[i].clear(this.display.bcontext);
+        // for(var i = 0; i < this.players.length; i++) this.players[i].clear(this.display.bcontext);
+
         // clear map
-        if(this.mx && this.my){
-            this.display.bcontext.clearRect(
-                this.mx - this.map_size,
-                this.my - this.map_size,
-                this.map_size * 2,
-                this.map_size * 2
-            );
-        }
+        // if(this.mx && this.my){
+        //     this.display.bcontext.clearRect(
+        //         this.mx - this.map_size,
+        //         this.my - this.map_size,
+        //         this.map_size * 2,
+        //         this.map_size * 2
+        //     );
+        // }
     };
     obj.draw = function(){
         this.clear();
