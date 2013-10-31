@@ -54,9 +54,6 @@ def vk_iframe():
     else:
         user = User(pk=user_pk)
 
-    from libs.vk import send_notification
-    send_notification(u"Привіт світ sdfsdf", user.vkontakte_user_id)
-
     return render_template(
         "vk_iframe.html",
         socket_url=socket_url(),
