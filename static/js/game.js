@@ -233,8 +233,9 @@ function GAME(DISPLAY){
         k = Math.round(Math.cos(this.players[0].rotation));
         x *= k;
         y *= k;
-        this.display.container.style.backgroundPositionX = -this.SPACE_RADIUS + this.cx - x + 'px';
-        this.display.container.style.backgroundPositionY = -this.SPACE_RADIUS + this.cy - y + 'px';
+        var px = -this.SPACE_RADIUS + this.cx - x + 'px';
+        var py = -this.SPACE_RADIUS + this.cy - y + 'px';
+        this.display.container.style.backgroundPosition = px + ' ' + py;
     };
     obj.drawObjects = function(x, y){
         for(var i = 0; i < this.players.length; i++){
