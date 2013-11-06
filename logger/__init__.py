@@ -13,7 +13,7 @@ def logging_on(cls):
         __LOGS__[cls.__name__] = OrderedDict()
     clog = __LOGS__[cls.__name__]   # Class log
     for method_name in dir(cls):
-        method = getattr(cls, method_name)
+        method = getattr(cls, method_name, None)
         if not hasattr(method, "__call__"):
             continue
         if method_name.startswith("_"):

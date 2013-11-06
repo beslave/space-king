@@ -48,4 +48,8 @@ JS = dict(
     PREVIEW_ALPHA=0.8,
 )
 
+SOCKJS_WEBSOCKET = True
+SOCKJS_COOKIE_NEEDED = True
+
+
 from local_settings import *

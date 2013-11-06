@@ -8,7 +8,7 @@ import random
 
 
 def socket_url():
-    return "ws://{addr}:{port}/game".format(
+    return "http://{addr}:{port}/game".format(
         addr=request.host.split(':')[0],
         port=random.choice(settings.SOCKETSERVER_PORTS)
     )

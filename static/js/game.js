@@ -95,7 +95,7 @@ function GAME(DISPLAY){
     obj.map_size = 240;
 
     obj.connect = function(){
-        obj.socket = new WebSocket(SOCKET_URL);
+        obj.socket = new SockJS(SOCKET_URL, sockjs_options);
         obj.socket.onopen = function(){
             log("socket open");
         };

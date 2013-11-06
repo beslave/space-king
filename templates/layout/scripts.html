@@ -1,3 +1,17 @@
+<script type="text/javascript">
+    var sockjs_options = {
+        devel: {% if config.DEBUG %}true{% else %}false{% endif %},
+        debug: {% if config.DEBUG %}true{% else %}false{% endif %},
+        websocket: {% if config.SOCKJS_WEBSOCKET %}true{% else %}false{% endif %},
+        info: {
+            cookie_needed: {% if config.SOCKJS_COOKIE_NEEDED %}true{% else %}false{% endif %}
+        }
+    };
+</script>
+
+<script type="text/javascript"
+    src="{{ url_for('static', filename='js/sock.js') }}?v={{ config.VERSION }}">
+</script>
 <script type="text/javascript"
     src="{{ url_for('static', filename='js/message.js') }}?v={{ config.VERSION }}">
 </script>

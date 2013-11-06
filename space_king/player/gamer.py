@@ -1,25 +1,24 @@
 # coding: utf-8
 from space_king.player.base import Player
-from libs.websocket import WebSocketHandler
 from logger import logging_on
 from flask.sessions import SecureCookieSessionInterface, total_seconds
 from space_king import app
 from space_king.models.user import User
+from twisted.internet.protocol import Protocol
 
 import json
 
 
 @logging_on
-class Gamer(Player, WebSocketHandler):
+class Gamer(Player, Protocol):
 
     def __init__(self, *a, **k):
         super(Gamer, self).__init__(*a, **k)
-        WebSocketHandler.__init__(self, *a, **k)
 
     def connectionMade(self):
         s = SecureCookieSessionInterface()
         signing_serializer = s.get_signing_serializer(app)
-        sessionid = self.transport._request.getCookie('session')
+        sessionid = self.transport.transport.request.getCookie('session')
         session = signing_serializer.loads(
             sessionid,
             max_age=total_seconds(app.permanent_session_lifetime)
@@ -52,8 +51,8 @@ class Gamer(Player, WebSocketHandler):
             user.short_info if user else {}
         ))
 
-    def frameReceived(self, frame):
-        parts = frame.split(' ')
+    def dataReceived(self, data):
+        parts = data.split(' ')
         if len(parts) > 0:
             command_name = '__command_{}__'.format(parts[0])
             parts = parts[1:]
