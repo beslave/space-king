@@ -2,9 +2,9 @@
     var sockjs_options = {
         devel: {% if config.DEBUG %}true{% else %}false{% endif %},
         debug: {% if config.DEBUG %}true{% else %}false{% endif %},
-        websocket: {% if config.SOCKJS_WEBSOCKET %}true{% else %}false{% endif %},
+        websocket: {% if config.SOCKJS.websocket %}true{% else %}false{% endif %},
         info: {
-            cookie_needed: {% if config.SOCKJS_COOKIE_NEEDED %}true{% else %}false{% endif %}
+            cookie_needed: {% if config.SOCKJS.cookie_needed %}true{% else %}false{% endif %}
         }
     };
 </script>

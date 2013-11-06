@@ -48,8 +48,15 @@ JS = dict(
     PREVIEW_ALPHA=0.8,
 )
 
-SOCKJS_WEBSOCKET = True
-SOCKJS_COOKIE_NEEDED = True
+SOCKJS = {
+    'websocket': True,
+    'cookie_needed': True,
+    'heartbeat': 25,
+    'timeout': 5,
+    'streaming_limit': 128 * 1024,
+    'encoding': 'utf8',
+    'proxy_header': None
+}
 
 
 from local_settings import *
