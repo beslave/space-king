@@ -1,37 +1,73 @@
 function Ship(kwargs, game){
     var obj = kwargs;
     obj.game = game;
+
+    obj.past_x = obj.x;
+    obj.past_y = obj.y;
+    obj.past_angle = obj.angle;
+
+    obj.current_x = obj.x;
+    obj.current_y = obj.y;
+    obj.current_angle = obj.angle;
+
+    obj.dx = 0.0;
+    obj.dy = 0.0;
+    obj.da = 0.0;
+
+    obj.snapshot_time = new Date().getTime();
+    obj.draw_time = obj.snapshot_time;
+
     obj.is_forward = false;
     obj.is_backward = false;
     obj.is_left = false;
     obj.is_right = false;
+
     obj.turbine_hoffset = 0.5 * obj.radius;
     obj.turbine_voffset = 0.1 * obj.radius;
     obj.turbine_width = 0.4 * obj.radius;
     obj.turbine_height = 0.95 * obj.radius;
+
     obj.draw_counter = 0;
     obj.fire_bottoms = [1.7, 1.75, 1.85];
-    obj.draw = function(context, rx, ry){
-        this.rx = rx;
-        this.ry = ry;
+
+    obj.calculate_current_position = function(){
+        if(ENABLE_APPROXIMATION){
+            var new_draw_time = new Date().getTime();
+            var dt = new_draw_time - this.draw_time;
+            this.current_x += this.dx * dt;
+            this.current_y += this.dy * dt;
+            this.current_angle += this.da * dt;
+            this.draw_time = new_draw_time;
+        } else {
+            this.current_x = this.x;
+            this.current_y = this.y;
+            this.current_angle = this.angle;
+        }
+    };
+
+    obj.draw = function(context, ox, oy){
+        this.rx = ox + this.current_x;
+        this.ry = oy + this.current_y;
         context.translate(this.rx, this.ry);
-        context.rotate(Math.PI / 2 - this.angle);
+        context.rotate(Math.PI / 2 - this.current_angle);
         this.draw_casing(context);
         this.draw_window(context);
         this.draw_turbines(context);
         if(this.is_forward) this.draw_forward_fires(context);
         if(this.is_backward) this.draw_reverse_fires(context);
         this.draw_reverse_turbines(context);
-        context.rotate(this.angle - Math.PI / 2);
+        context.rotate(this.current_angle - Math.PI / 2);
         context.translate(-this.rx, -this.ry);
         this.draw_counter++;
     };
+
     obj.clear = function(context){
         if(this.rx && this.ry){
             var D = this.radius * 3;
             context.clearRect(this.rx - D, this.ry - D, D * 2, D * 2);
         }
     };
+
     obj.draw_casing = function(context){
         context.beginPath();
         context.arc(0, 0, this.radius, 2 * Math.PI, false);
@@ -42,6 +78,7 @@ function Ship(kwargs, game){
         context.fill();
         context.stroke();
     };
+
     obj.draw_window = function(context){
         context.beginPath();
         context.rect(- this.radius * 0.55, - this.radius * 0.8, this.radius * 1.1, this.radius * 0.3);
@@ -69,6 +106,7 @@ function Ship(kwargs, game){
             context.stroke();
         }
     };
+
     obj.draw_forward_fires = function(context){
         context.fillStyle = "#FF0";
         context.strokeStyle = "#F00";
@@ -95,6 +133,7 @@ function Ship(kwargs, game){
             context.stroke();
         }
     };
+
     obj.draw_reverse_fires = function(context){
         context.strokeStyle = "#0CF";
         context.lineWidth = this.turbine_width * 0.04;
@@ -115,6 +154,7 @@ function Ship(kwargs, game){
             }
         }
     };
+
     obj.draw_reverse_turbines = function(context){
         context.lineWidth = this.turbine_width * 0.05;
         context.fillStyle = "#123";
@@ -128,29 +168,52 @@ function Ship(kwargs, game){
             context.stroke();
         }
     };
+
     obj.forward = function(is_on){
         var prev = this.is_forward;
         if(is_on && !prev) this.game.notify('forward on');
         else if(!is_on && prev) this.game.notify('forward off');
         this.is_forward = is_on;
     };
+
     obj.backward = function(is_on){
         var prev = this.is_backward;
         if(is_on && !prev) this.game.notify('backward on');
         else if(!is_on && prev) this.game.notify('backward off');
         this.is_backward = is_on;
     };
+
     obj.right = function(is_on){
         var prev = this.is_right;
         if(is_on && !prev) this.game.notify('right on');
         else if(!is_on && prev) this.game.notify('right off');
         this.is_right = is_on;
     };
+
     obj.left = function(is_on){
         var prev = this.is_left;
         if(is_on && !prev) this.game.notify('left on');
         else if(!is_on && prev) this.game.notify('left off');
         this.is_left = is_on;
     };
+
+    obj.update = function(kwargs){
+        var last_x = this.x;
+        var last_y = this.y;
+        var last_angle = this.angle;
+
+        for(var key in kwargs) this[key] = kwargs[key];
+
+        var new_snapshot_time = new Date().getTime();
+        var dt = new_snapshot_time - this.snapshot_time;
+        this.dx = (2 * this.x - this.current_x - this.past_x) / dt;
+        this.dy = (2 * this.y - this.current_y - this.past_y) / dt;
+        this.da = (2 * this.angle - this.current_angle - this.past_angle) / dt;
+
+        this.past_x = last_x;
+        this.past_y = last_y;
+        this.past_angle = last_angle;
+        this.snapshot_time = new_snapshot_time;
+    }
     return obj;
 };

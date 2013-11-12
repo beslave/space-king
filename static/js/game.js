@@ -87,8 +87,10 @@ function GAME(DISPLAY){
     obj.container = document.getElementById('display');
 
     // 0 - SELF SHIP PARAMS LOADING
-    // 1 - OTHER OBJECTS LOADING
-    // 2 - POSITION REFRESHING
+    // 1 - SELF USER_INFO LOADING
+    // 2 - SECOND SHIP LOADING
+    // 3 - SECOND USER_INFO LOADING
+    // 4 - UPDATE GAMERS DATA
     obj.GAME_STATE = 0;
     
     obj.players = [null, null];
@@ -125,9 +127,7 @@ function GAME(DISPLAY){
                 obj.display.canvas.width = obj.display.canvas.width;
                 obj.GAME_STATE++;
             } else if(obj.GAME_STATE == 4){
-                for(var i=0; i < data.length; i++){
-                    for(var key in data[i]) obj.players[i][key] = data[i][key];
-                }
+                for(var i=0; i < data.length; i++) obj.players[i].update(data[i]);
                 if(obj.players[0].win) obj.win();
                 if(obj.players[0].lose) obj.lose();
             }
@@ -194,8 +194,38 @@ function GAME(DISPLAY){
         //     );
         // }
     };
+
+    obj.check_collisions = function(){
+        for(var i = 0; i < this.players.length - 1; i++){
+            for(var j = i + 1; j < this.players.length; j++){
+                if(
+                    Math.pow(this.players[i].current_x - this.players[j].current_x, 2.0) +
+                    Math.pow(this.players[i].current_y - this.players[j].current_y, 2.0) <
+                    Math.pow(this.players[i].radius + this.players[j].radius, 2.0)
+                ) return true;
+            }
+        }
+        return false;
+    };
+
     obj.draw = function(){
         this.clear();
+        var previous_states = [];
+        for(var i = 0; i < this.players.length; i++){
+            previous_states.push({
+                current_x: this.players[i].current_x,
+                current_y: this.players[i].current_y,
+                current_angle: this.players[i].current_angle
+            });
+            this.players[i].calculate_current_position();
+        }
+        if(this.check_collisions()){
+            for(var i = 0; i < previous_states.length; i++){
+                for(var key in previous_states[i]){
+                    this.players[i][key] = previous_states[i][key];
+                }
+            }
+        }
         var pos = this.getPosition();
 
         this.display.bcontext.translate(this.cx, this.cy);
@@ -214,8 +244,8 @@ function GAME(DISPLAY){
         this.display.flip();
     };
     obj.getPosition = function(){
-        var x = this.players[0].x;
-        var y = this.players[0].y;
+        var x = this.players[0].current_x;
+        var y = this.players[0].current_y;
         if(x < -this.SPACE_RADIUS + this.display.buffer.width / 2)
             x = -this.SPACE_RADIUS + this.display.buffer.width / 2;
         if(x > this.SPACE_RADIUS - this.display.buffer.width / 2)
@@ -241,8 +271,8 @@ function GAME(DISPLAY){
         for(var i = 0; i < this.players.length; i++){
             this.players[i].draw(
                 this.display.bcontext,
-                this.players[i].x - x + this.display.buffer.width / 2,
-                this.players[i].y - y + this.display.buffer.height / 2
+                -x + this.display.buffer.width / 2,
+                -y + this.display.buffer.height / 2
             );
         }
     };
@@ -270,8 +300,8 @@ function GAME(DISPLAY){
         for(var i = 0; i < 2; i++){
             context.beginPath();
             context.arc(
-                this.players[i].x * this.map_size / this.SPACE_RADIUS * 0.5,
-                this.players[i].y * this.map_size / this.SPACE_RADIUS * 0.5,
+                this.players[i].current_x * this.map_size / this.SPACE_RADIUS * 0.5,
+                this.players[i].current_y * this.map_size / this.SPACE_RADIUS * 0.5,
                 this.map_size * this.players[i].radius / this.SPACE_RADIUS * 0.5,
                 Math.PI * 2, false);
             context.closePath();

@@ -3,7 +3,7 @@ DEBUG = True
 SITE_PORT = 7001
 SOCKETSERVER_PORTS = [7002]
 
-VERSION = '0.0.6'
+VERSION = '0.0.7'
 
 SPACE_RADIUS = 1000
 PIXELS_ACCURACY = 1
@@ -30,7 +30,7 @@ JS = dict(
     YOU_WIN='"You win!"',
     WAIT_PLAYER='"Waiting for second player"',
 
-    FRAME_DELAY=30,
+    FRAME_DELAY=20,
     FLIPPING='true',
 
     LARGE_FONT='"30px Calibri"',
@@ -46,6 +46,8 @@ JS = dict(
 
     BASE_ALPHA=0.85,
     PREVIEW_ALPHA=0.8,
+
+    ENABLE_APPROXIMATION='true',
 )
 
 SOCKJS = {

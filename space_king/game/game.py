@@ -5,7 +5,7 @@ from logger import logging_on
 from math import cos, pi, sin
 from space_king import settings
 from twisted.internet import reactor
-
+from twisted.internet.task import LoopingCall
 import time
 
 
@@ -25,6 +25,7 @@ class Game(object):
         self.id = game_id
         self.players = []
         self.is_play = False
+        self.playing = LoopingCall(self.play)
 
     @staticmethod
     def enter(player):
@@ -58,7 +59,7 @@ class Game(object):
                     p.send_user_info(enemy.user)
                 p.incr_battles()
                 p.in_play()
-            self.play()
+            self.playing.start(settings.SYSTEM_DELAY)
         else:
             reactor.callLater(settings.PLAYER_WAITING_TIME, self.check_is_enemy)
 
@@ -79,18 +80,14 @@ class Game(object):
             p.rotation = q
 
     def play(self):
-        if self.is_play:
-            self.t2 = time.time()
-            self.is_play = self.next_frame()
-            self.t1 = self.t2
-            diffs = [p.changes for p in self.players]
-            f = lambda o: list(enemies_data(o))
-            x = zip(*map(f, [self.players, diffs]))
-            for (p, enemies), (d, enemies_diffs) in x:
-                p.send_changes([d] + list(enemies_diffs))
-            reactor.callLater(settings.SYSTEM_DELAY, self.play)
-        else:
-            self.stop()
+        self.t2 = time.time()
+        self.is_play = self.next_frame()
+        self.t1 = self.t2
+        diffs = [p.changes for p in self.players]
+        f = lambda o: list(enemies_data(o))
+        x = zip(*map(f, [self.players, diffs]))
+        for (p, enemies), (d, enemies_diffs) in x:
+            p.send_changes([d] + list(enemies_diffs))
 
     def next_frame(self):
         for player in self.players:
@@ -116,7 +113,7 @@ class Game(object):
                 player.angle += player.angle_speed * self.dT
             if player.is_right:
                 player.angle -= player.angle_speed * self.dT
-        player.angle = normalize_angle(player.angle)
+        #player.angle = normalize_angle(player.angle)
 
     def move_ship(self, player):
         player.x += player.speed_x * self.dT
@@ -175,6 +172,7 @@ class Game(object):
 
     def stop(self):
         self.is_play = False
+        self.playing.stop()
         for p in self.players:
             p.in_play(False)
             p.close()
