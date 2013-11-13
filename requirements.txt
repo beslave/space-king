@@ -1,5 +1,8 @@
+cssmin==0.2.0
 flask==0.10
+flask-assets==0.8
 hiredis==0.1.1
+jsmin==2.0.8
 pyOpenSSL==0.13.1
 redis==2.8.0
 twisted==13.1.0

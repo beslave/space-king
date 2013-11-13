@@ -42,8 +42,8 @@ class Gamer(Player, Protocol):
         self.transport.write(json.dumps(ship))
 
     def send_changes(self, changes):
-        if any(changes):
-            self.transport.write(json.dumps(changes))
+        #if any(changes):
+        self.transport.write(json.dumps(changes))
 
     def send_user_info(self, user=None):
         user = self.user if user is None else user

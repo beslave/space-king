@@ -113,7 +113,7 @@ class Game(object):
                 player.angle += player.angle_speed * self.dT
             if player.is_right:
                 player.angle -= player.angle_speed * self.dT
-        #player.angle = normalize_angle(player.angle)
+        player.angle = normalize_angle(player.angle)
 
     def move_ship(self, player):
         player.x += player.speed_x * self.dT

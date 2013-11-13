@@ -179,20 +179,21 @@ function GAME(DISPLAY){
         this.display.bcontext.translate(-this.cx, -this.cy);
         this.display.flip();
     };
-    obj.clear = function(){
-        this.display.bcontext.clearRect(0, 0, this.display.buffer.width, this.display.buffer.height);
-        // clear objects
-        // for(var i = 0; i < this.players.length; i++) this.players[i].clear(this.display.bcontext);
 
-        // clear map
-        // if(this.mx && this.my){
-        //     this.display.bcontext.clearRect(
-        //         this.mx - this.map_size,
-        //         this.my - this.map_size,
-        //         this.map_size * 2,
-        //         this.map_size * 2
-        //     );
-        // }
+    obj.clearObjects = function(){
+        for(var i = 0; i < this.players.length; i++)
+            this.players[i].clear(this.display.bcontext);
+    };
+
+    obj.clearMap = function(){
+        if(this.mx && this.my){
+             this.display.bcontext.clearRect(
+                 this.mx - this.map_size,
+                 this.my - this.map_size,
+                 this.map_size * 2,
+                 this.map_size * 2
+             );
+        }
     };
 
     obj.check_collisions = function(){
@@ -209,7 +210,6 @@ function GAME(DISPLAY){
     };
 
     obj.draw = function(){
-        this.clear();
         var previous_states = [];
         for(var i = 0; i < this.players.length; i++){
             previous_states.push({
@@ -227,11 +227,13 @@ function GAME(DISPLAY){
             }
         }
         var pos = this.getPosition();
+        this.clearMap();
 
         this.display.bcontext.translate(this.cx, this.cy);
         this.display.bcontext.rotate(-this.players[0].rotation);
         this.display.bcontext.translate(-this.cx, -this.cy);
 
+        this.clearObjects();
         this.drawBackground(pos.x, pos.y);
         this.drawObjects(pos.x, pos.y);
 

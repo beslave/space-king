@@ -63,7 +63,7 @@ function Ship(kwargs, game){
 
     obj.clear = function(context){
         if(this.rx && this.ry){
-            var D = this.radius * 3;
+            var D = 2 * this.radius;
             context.clearRect(this.rx - D, this.ry - D, D * 2, D * 2);
         }
     };
@@ -206,9 +206,16 @@ function Ship(kwargs, game){
 
         var new_snapshot_time = new Date().getTime();
         var dt = new_snapshot_time - this.snapshot_time;
+        var diff_angle = 2 * this.angle - this.current_angle - this.past_angle;
+        diff_angle %= 2 * Math.PI;
+        if(diff_angle > Math.PI) diff_angle -= 2 * Math.PI;
+        this.da = diff_angle / dt;
         this.dx = (2 * this.x - this.current_x - this.past_x) / dt;
         this.dy = (2 * this.y - this.current_y - this.past_y) / dt;
-        this.da = (2 * this.angle - this.current_angle - this.past_angle) / dt;
+
+        // @TODO: Make angle approximation
+        this.da = 0;
+        this.current_angle = this.angle;
 
         this.past_x = last_x;
         this.past_y = last_y;

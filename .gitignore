@@ -27,3 +27,6 @@ nosetests.xml
 
 .*
 !.gitignore
+
+static/js/all.js
+static/css/all.css

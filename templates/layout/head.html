@@ -1,4 +1,6 @@
-<link rel="stylesheet" type="text/css" media="all" href="{{ url_for('static', filename='css/style.css') }}" />
+{% assets "css_all" %}
+    <link rel="stylesheet" type="text/css" media="all" href="{{ ASSET_URL }}" />
+{% endassets %}
 <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" />
 <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}" />
 
@@ -10,10 +12,20 @@
 <meta name="application-name" content="The King Of Space">
 <meta name="author" content="Vladislav A. Lozhechnik">
 
-<script type="text/javascript" src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+{% assets "js_all" %}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
 
 <script type="text/javascript">
     {% for variable, value in config.JS.iteritems() %}
         var {{ variable }} = {{ value|safe }};
     {% endfor %}
+    var sockjs_options = {
+        devel: {% if config.DEBUG %}true{% else %}false{% endif %},
+        debug: {% if config.DEBUG %}true{% else %}false{% endif %},
+        websocket: {% if config.SOCKJS.websocket %}true{% else %}false{% endif %},
+        info: {
+            cookie_needed: {% if config.SOCKJS.cookie_needed %}true{% else %}false{% endif %}
+        }
+    };
 </script>

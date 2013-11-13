@@ -1,13 +1,11 @@
 # coding: utf-8
-DEBUG = True
+DEBUG = False
 SITE_PORT = 7001
 SOCKETSERVER_PORTS = [7002]
 
-VERSION = '0.0.7'
-
 SPACE_RADIUS = 1000
 PIXELS_ACCURACY = 1
-SYSTEM_DELAY = 0.05
+SYSTEM_DELAY = 0.03
 
 PLAYER_WAITING_TIME = 10
 PLAYER_START_RADIUS = 100
@@ -31,7 +29,7 @@ JS = dict(
     WAIT_PLAYER='"Waiting for second player"',
 
     FRAME_DELAY=20,
-    FLIPPING='true',
+    FLIPPING='false',
 
     LARGE_FONT='"30px Calibri"',
     BASE_FONT='"24px Calibri"',
@@ -47,7 +45,7 @@ JS = dict(
     BASE_ALPHA=0.85,
     PREVIEW_ALPHA=0.8,
 
-    ENABLE_APPROXIMATION='true',
+    ENABLE_APPROXIMATION='false',
 )
 
 SOCKJS = {
@@ -62,3 +60,5 @@ SOCKJS = {
 
 
 from local_settings import *
+
+ASSETS_DEBUG = DEBUG

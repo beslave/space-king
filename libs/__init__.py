@@ -57,5 +57,5 @@ def random_string(size_min=6, size_max=None, pretty=False):
 def normalize_angle(angle):
     angle %= 2.0 * pi
     if angle > pi:
-        angle = angle - 2.0 * pi
+        angle -= 2.0 * pi
     return angle
