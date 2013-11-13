@@ -16,8 +16,9 @@ app.config.from_object("space_king.settings")
 
 assets = Environment(app)
 js_all = Bundle(
-    'js/jquery-1.10.2.js',
-    'js/sock.js',
+    'js/plugins/analytics.js',
+    'js/plugins/jquery-1.10.2.js',
+    'js/plugins/sock.js',
     'js/message.js',
     'js/ship.js',
     'js/game.js',
